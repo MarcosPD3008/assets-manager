@@ -117,6 +117,9 @@ DB_PORT=5432
 DB_USERNAME=postgres
 DB_PASSWORD=password
 DB_DATABASE=nest_monorepo
+
+# CORS (lista separada por comas para múltiples orígenes)
+CORS_ORIGIN=http://localhost:4200
 ```
 
 ### Crear nuevas entidades
