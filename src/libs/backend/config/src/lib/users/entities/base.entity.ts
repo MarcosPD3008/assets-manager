@@ -1,4 +1,10 @@
-import { CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
+import {
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+  PrimaryGeneratedColumn,
+  BaseEntity,
+} from 'typeorm';
 import { Exclude } from 'class-transformer';
 
 export abstract class BaseEntityWithTimestamps extends BaseEntity {
@@ -19,5 +25,12 @@ export abstract class BaseEntityWithTimestamps extends BaseEntity {
   })
   @Exclude({ toPlainOnly: true })
   updatedAt!: Date;
+
+  @DeleteDateColumn({
+    type: 'timestamp',
+    nullable: true,
+  })
+  @Exclude({ toPlainOnly: true })
+  deletedAt?: Date;
 }
 

@@ -3,7 +3,35 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/entities/user.entity';
 import { UserService } from './users/services/user.service';
+import { Asset } from './features/assets/asset.entity';
+import { Contact } from './features/contacts/contact.entity';
+import { Assignment } from './features/assignments/assignment.entity';
+import { Maintenance } from './features/maintenances/maintenance.entity';
+import { Reminder } from './features/reminders/reminder.entity';
+import { AssetService } from './features/assets/asset.service';
+import { ContactService } from './features/contacts/contact.service';
+import { AssignmentService } from './features/assignments/assignment.service';
+import { MaintenanceService } from './features/maintenances/maintenance.service';
+import { ReminderService } from './features/reminders/reminder.service';
 import databaseConfig from './config/database.config';
+
+const allEntities = [
+  User,
+  Asset,
+  Contact,
+  Assignment,
+  Maintenance,
+  Reminder,
+];
+
+const allServices = [
+  UserService,
+  AssetService,
+  ContactService,
+  AssignmentService,
+  MaintenanceService,
+  ReminderService,
+];
 
 @Module({
   imports: [
@@ -19,10 +47,10 @@ import databaseConfig from './config/database.config';
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature(allEntities),
   ],
-  providers: [UserService],
-  exports: [ConfigModule, TypeOrmModule, UserService],
+  providers: allServices,
+  exports: [ConfigModule, TypeOrmModule, ...allServices],
 })
 export class BackendConfigModule {
   static forRoot() {
@@ -39,10 +67,13 @@ export class BackendConfigModule {
     return {
       module: BackendConfigModule,
       imports: [
-        TypeOrmModule.forFeature(options?.entities || [User]),
+        TypeOrmModule.forFeature(options?.entities || allEntities),
       ],
-      providers: options?.services || [UserService],
-      exports: [TypeOrmModule, ...(options?.services || [UserService])],
+      providers: options?.services || allServices,
+      exports: [
+        TypeOrmModule,
+        ...(options?.services || allServices),
+      ],
       global: true,
     };
   }

@@ -2,6 +2,8 @@
  * Shared utility functions for both frontend and backend
  */
 
+export * from './odata-filter-frontend';
+
 /**
  * Capitalize the first letter of a string
  */
