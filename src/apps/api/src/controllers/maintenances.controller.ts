@@ -28,7 +28,7 @@ export class MaintenancesController {
     summary: 'Get all maintenances',
     description: 'Retrieve a paginated list of maintenances. Supports OData filters: filter=assetId eq uuid. Query params: page (default: 1), pageSize (default: 10)',
     responseType: Maintenance,
-    isArray: false,
+    isPaginated: true,
   })
   async findAll(@Query() query: Record<string, any>): Promise<{ items: Maintenance[]; total: number }> {
     const page = parseInt(query.page as string, 10) || 1;

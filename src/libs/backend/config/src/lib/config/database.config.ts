@@ -7,7 +7,7 @@ export default registerAs('database', () => ({
   username: process.env['DB_USERNAME'] || 'postgres',
   password: process.env['DB_PASSWORD'] || 'password',
   database: process.env['DB_DATABASE'] || 'nest_monorepo',
-  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  // entities will be passed explicitly from the module
   synchronize: process.env['NODE_ENV'] !== 'production',
   logging: process.env['NODE_ENV'] === 'development',
   dropSchema: false,

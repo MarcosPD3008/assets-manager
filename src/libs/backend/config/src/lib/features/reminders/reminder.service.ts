@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThanOrEqual } from 'typeorm';
 import { Reminder } from './reminder.entity';
 import { BaseService } from '../../users/services/base.service';
+import { TargetType } from '../shared/enums';
 
 @Injectable()
 export class ReminderService extends BaseService<Reminder> {
@@ -36,7 +37,7 @@ export class ReminderService extends BaseService<Reminder> {
   ): Promise<Reminder[]> {
     return await this.reminderRepository.find({
       where: {
-        targetType,
+        targetType: targetType as TargetType,
         targetId,
       },
       order: { scheduledDate: 'ASC' },

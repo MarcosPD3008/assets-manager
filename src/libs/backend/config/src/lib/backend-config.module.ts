@@ -42,9 +42,13 @@ const allServices = [
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        ...configService.get('database'),
-      }),
+      useFactory: (configService: ConfigService) => {
+        const dbConfig = configService.get('database');
+        return {
+          ...dbConfig,
+          entities: allEntities, // Use explicit entities array instead of path
+        };
+      },
       inject: [ConfigService],
     }),
     TypeOrmModule.forFeature(allEntities),

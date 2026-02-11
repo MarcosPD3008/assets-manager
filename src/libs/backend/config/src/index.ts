@@ -10,6 +10,7 @@ export * from './lib/users/dto/user.dto';
 // Features - Shared
 export * from './lib/features/shared/enums';
 export * from './lib/features/shared/dto/calendar-query.dto';
+export * from './lib/features/shared/dto/paginated-response.dto';
 
 // Features - Assets
 export * from './lib/features/assets/asset.entity';

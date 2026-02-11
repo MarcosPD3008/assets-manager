@@ -29,7 +29,7 @@ export class RemindersController {
     summary: 'Get all reminders',
     description: 'Retrieve a paginated list of reminders. Supports OData filters: filter=isSent eq false. Query params: page (default: 1), pageSize (default: 10)',
     responseType: Reminder,
-    isArray: false,
+    isPaginated: true,
   })
   async findAll(@Query() query: Record<string, any>): Promise<{ items: Reminder[]; total: number }> {
     const page = parseInt(query.page as string, 10) || 1;

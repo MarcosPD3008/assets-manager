@@ -28,7 +28,7 @@ export class ContactsController {
     summary: 'Get all contacts',
     description: 'Retrieve a paginated list of contacts. Supports OData filters: filter=email contains @example.com. Query params: page (default: 1), pageSize (default: 10)',
     responseType: Contact,
-    isArray: false,
+    isPaginated: true,
   })
   async findAll(@Query() query: Record<string, any>): Promise<{ items: Contact[]; total: number }> {
     const page = parseInt(query.page as string, 10) || 1;

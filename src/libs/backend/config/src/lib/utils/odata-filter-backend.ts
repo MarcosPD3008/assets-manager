@@ -194,7 +194,7 @@ function parseODataExpression(expression: string): ParsedFilter[] {
  * @returns Array of parsed filters
  */
 export function parseFilterQueryParams(query: Record<string, any>): ParsedFilter[] {
-  const filterExpression = query.filter;
+  const filterExpression = query['filter'];
 
   if (!filterExpression || typeof filterExpression !== 'string') {
     return [];

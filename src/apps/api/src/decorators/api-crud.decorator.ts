@@ -8,6 +8,8 @@ import {
   ApiNotFoundResponse,
   ApiBadRequestResponse,
   ApiInternalServerErrorResponse,
+  ApiExtraModels,
+  getSchemaPath,
 } from '@nestjs/swagger';
 
 interface ApiCrudOptions {
@@ -19,7 +21,7 @@ interface ApiCrudOptions {
   paramDescription?: string;
 }
 
-export function ApiGet(options: ApiCrudOptions & { isArray?: boolean }) {
+export function ApiGet(options: ApiCrudOptions & { isArray?: boolean; isPaginated?: boolean }) {
   const decorators = [
     ApiOperation({
       summary: options.summary,
@@ -28,7 +30,27 @@ export function ApiGet(options: ApiCrudOptions & { isArray?: boolean }) {
   ];
 
   if (options.responseType) {
-    if (options.isArray) {
+    if (options.isPaginated) {
+      // For paginated responses, use a custom schema
+      decorators.push(
+        ApiExtraModels(options.responseType),
+        ApiOkResponse({
+          schema: {
+            type: 'object',
+            properties: {
+              items: {
+                type: 'array',
+                items: { $ref: getSchemaPath(options.responseType) },
+              },
+              total: {
+                type: 'number',
+                example: 100,
+              },
+            },
+          },
+        }),
+      );
+    } else if (options.isArray) {
       decorators.push(ApiOkResponse({ type: options.responseType, isArray: true }));
     } else {
       decorators.push(ApiOkResponse({ type: options.responseType }));

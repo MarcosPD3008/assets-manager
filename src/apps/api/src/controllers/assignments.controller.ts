@@ -29,7 +29,7 @@ export class AssignmentsController {
     summary: 'Get all assignments',
     description: 'Retrieve a paginated list of assignments. Supports OData filters: filter=status eq ACTIVE. Query params: page (default: 1), pageSize (default: 10)',
     responseType: Assignment,
-    isArray: false,
+    isPaginated: true,
   })
   async findAll(@Query() query: Record<string, any>): Promise<{ items: Assignment[]; total: number }> {
     const page = parseInt(query.page as string, 10) || 1;

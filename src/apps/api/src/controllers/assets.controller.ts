@@ -15,6 +15,7 @@ import {
   Asset,
   CreateAssetDto,
   UpdateAssetDto,
+  UpdateStatusDto,
   parseFiltersFromQuery,
 } from '@libs/backend-config';
 import { ApiGet, ApiPost, ApiPut, ApiPatch, ApiDelete } from '../decorators/api-crud.decorator';
@@ -29,7 +30,7 @@ export class AssetsController {
     summary: 'Get all assets',
     description: 'Retrieve a paginated list of assets. Supports OData filters: filter=status eq AVAILABLE and price gt 1000. Query params: page (default: 1), pageSize (default: 10)',
     responseType: Asset,
-    isArray: false,
+    isPaginated: true,
   })
   async findAll(@Query() query: Record<string, any>): Promise<{ items: Asset[]; total: number }> {
     const page = parseInt(query.page as string, 10) || 1;
@@ -87,14 +88,15 @@ export class AssetsController {
     summary: 'Update asset status',
     description: 'Update only the status of an asset',
     responseType: Asset,
+    bodyType: UpdateStatusDto,
     paramName: 'id',
     paramDescription: 'Asset UUID',
   })
   async updateStatus(
     @Param('id') id: string,
-    @Body('status') status: string,
+    @Body() updateStatusDto: UpdateStatusDto,
   ): Promise<Asset> {
-    return await this.assetService.updateStatus(id, status as any);
+    return await this.assetService.updateStatus(id, updateStatusDto.status as any);
   }
 
   @Delete(':id')
