@@ -1,0 +1,25 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-container {
+  flex: 1;
+  overflow: auto;
+}
+
+.sidenav {
+  width: 250px;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.content {
+  padding: 16px;
+  min-height: calc(100vh - 64px);
+  
+  @media (min-width: 768px) {
+    padding: 24px;
+  }
+}

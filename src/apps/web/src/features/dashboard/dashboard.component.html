@@ -1,0 +1,89 @@
+<div class="dashboard-container">
+    <div class="welcome-section">
+        <h1>Inicio</h1>
+        <p>Bienvenido a Assets Manager. Gestiona tus activos, asignaciones, mantenimientos y recordatorios.</p>
+    </div>
+
+    <div class="summary-grid">
+        <mat-card>
+            <mat-card-title>Recordatorios pendientes</mat-card-title>
+            <mat-card-content>
+                <strong>{{ remindersPendientes }}</strong>
+            </mat-card-content>
+        </mat-card>
+        <mat-card>
+            <mat-card-title>Mantenimientos próximos (30 días)</mat-card-title>
+            <mat-card-content>
+                <strong>{{ mantenimientosProximos }}</strong>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <div class="cards-grid">
+        <mat-card class="dashboard-card" routerLink="/assets">
+            <mat-card-header>
+                <mat-icon mat-card-avatar>inventory_2</mat-icon>
+                <mat-card-title>Activos</mat-card-title>
+                <mat-card-subtitle>Gestionar inventario</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <p>Ver, crear y editar activos de la empresa.</p>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="dashboard-card" routerLink="/assignments">
+            <mat-card-header>
+                <mat-icon mat-card-avatar>assignment_ind</mat-icon>
+                <mat-card-title>Asignaciones</mat-card-title>
+                <mat-card-subtitle>Préstamos de equipos</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <p>Gestionar quién tiene qué equipo asignado.</p>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="dashboard-card" routerLink="/contacts">
+            <mat-card-header>
+                <mat-icon mat-card-avatar>people</mat-icon>
+                <mat-card-title>Contactos</mat-card-title>
+                <mat-card-subtitle>Empleados y proveedores</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <p>Administrar la lista de contactos.</p>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="dashboard-card" routerLink="/maintenances">
+            <mat-card-header>
+                <mat-icon mat-card-avatar>build</mat-icon>
+                <mat-card-title>Mantenimientos</mat-card-title>
+                <mat-card-subtitle>Plan y ejecuciones</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <p>Registrar mantenimientos y controlar costos.</p>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="dashboard-card" routerLink="/reminders">
+            <mat-card-header>
+                <mat-icon mat-card-avatar>notifications</mat-icon>
+                <mat-card-title>Recordatorios</mat-card-title>
+                <mat-card-subtitle>Alertas pendientes</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <p>Ver recordatorios de devolución y mantenimiento.</p>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="dashboard-card" routerLink="/calendar">
+            <mat-card-header>
+                <mat-icon mat-card-avatar>calendar_month</mat-icon>
+                <mat-card-title>Calendario</mat-card-title>
+                <mat-card-subtitle>Vista mensual operativa</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <p>Consultar eventos de asignaciones, mantenimientos y recordatorios.</p>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

@@ -1,0 +1,101 @@
+<div class="form-container">
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title>{{ getTitle() }}</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+            <form [formGroup]="contactForm" class="contact-form">
+                <div class="form-grid">
+
+                    <!-- Name -->
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Nombre</mat-label>
+                        <input matInput formControlName="name" placeholder="Nombre completo">
+                        <app-form-error [control]="contactForm.get('name')" fieldName="El nombre"></app-form-error>
+                    </mat-form-field>
+
+                    <!-- Email -->
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Email</mat-label>
+                        <input matInput formControlName="email" placeholder="correo@ejemplo.com">
+                        <app-form-error [control]="contactForm.get('email')" fieldName="El email"></app-form-error>
+                    </mat-form-field>
+
+                    <!-- Phone -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Teléfono</mat-label>
+                        <input matInput formControlName="phoneNumber" placeholder="+123456789">
+                        <app-form-error [control]="contactForm.get('phoneNumber')"
+                            fieldName="El teléfono"></app-form-error>
+                    </mat-form-field>
+
+                    <!-- Department -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Departamento</mat-label>
+                        <input matInput formControlName="department" placeholder="Ej: IT, RRHH">
+                        <app-form-error [control]="contactForm.get('department')"
+                            fieldName="El departamento"></app-form-error>
+                    </mat-form-field>
+
+                    <!-- Position -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Cargo</mat-label>
+                        <input matInput formControlName="position" placeholder="Ej: Desarrollador">
+                        <app-form-error [control]="contactForm.get('position')" fieldName="El cargo"></app-form-error>
+                    </mat-form-field>
+
+                    <!-- Notes -->
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Notas</mat-label>
+                        <textarea matInput formControlName="notes" rows="3" placeholder="Notas adicionales"></textarea>
+                    </mat-form-field>
+
+                    <!-- Metadata -->
+                    <div class="full-width">
+                        <app-metadata-editor formControlName="metadata"></app-metadata-editor>
+                    </div>
+                </div>
+            </form>
+
+            <div class="history-section" *ngIf="isViewOnly && assignments.length > 0">
+                <h3>Historial de asignaciones</h3>
+                <table mat-table [dataSource]="assignments" class="history-table">
+                    <ng-container matColumnDef="asset">
+                        <th mat-header-cell *matHeaderCellDef>Activo</th>
+                        <td mat-cell *matCellDef="let assignment">{{ assignment.asset?.name || assignment.assetId }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="startDate">
+                        <th mat-header-cell *matHeaderCellDef>Inicio</th>
+                        <td mat-cell *matCellDef="let assignment">{{ assignment.startDate | date:'dd/MM/yyyy' }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="dueDate">
+                        <th mat-header-cell *matHeaderCellDef>Vencimiento</th>
+                        <td mat-cell *matCellDef="let assignment">{{ assignment.dueDate | date:'dd/MM/yyyy' }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef>Estado</th>
+                        <td mat-cell *matCellDef="let assignment">{{ assignment.status }}</td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="assignmentColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: assignmentColumns;"></tr>
+                </table>
+            </div>
+
+            <div class="loading-overlay" *ngIf="loading">
+                <mat-spinner diameter="40"></mat-spinner>
+            </div>
+        </mat-card-content>
+
+        <mat-card-actions align="end">
+            <button mat-button (click)="onCancel()" [disabled]="loading">
+                {{ isViewOnly ? 'Cerrar' : 'Cancelar' }}
+            </button>
+            <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="contactForm.invalid || loading"
+                *ngIf="!isViewOnly">
+                <mat-icon>save</mat-icon>
+                Guardar
+            </button>
+        </mat-card-actions>
+    </mat-card>
+</div>

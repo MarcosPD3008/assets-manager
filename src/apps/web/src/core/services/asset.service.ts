@@ -15,7 +15,7 @@ export class AssetService extends BaseService<Asset> {
   /**
    * Get all assets with optional filters and pagination
    */
-  getAllPaginated(
+  override getAllPaginated(
     filters?: ODataFilter[],
     pagination?: { page: number; pageSize: number }
   ): Observable<PaginatedResponse<Asset>> {

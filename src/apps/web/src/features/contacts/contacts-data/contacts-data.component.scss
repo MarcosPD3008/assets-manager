@@ -1,0 +1,66 @@
+.contacts-container {
+  padding: 24px;
+}
+
+mat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.header-actions {
+  margin-left: 16px;
+}
+
+.filters-accordion {
+  margin-bottom: 24px;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  padding-top: 16px;
+}
+
+.table-container {
+  overflow-x: auto;
+  
+  table {
+    width: 100%;
+  }
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    gap: 16px;
+    color: rgba(0,0,0,0.54);
+}
+
+.no-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px;
+    color: rgba(0,0,0,0.54);
+    
+    mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 16px;
+    }
+}
+
+.delete-action {
+    color: #f44336;
+    
+    mat-icon {
+        color: #f44336;
+    }
+}

@@ -15,7 +15,7 @@ export class ContactService extends BaseService<Contact> {
   /**
    * Get all contacts with optional filters and pagination
    */
-  getAllPaginated(
+  override getAllPaginated(
     filters?: ODataFilter[],
     pagination?: { page: number; pageSize: number }
   ): Observable<PaginatedResponse<Contact>> {

@@ -3,7 +3,7 @@
  * Convert filter objects to OData standard format query parameters
  */
 
-import { ODataFilter, FilterOperator } from '../models/odata-filter.models';
+import { ODataFilter, FilterOperator } from '@libs/shared';
 
 /**
  * Format a filter value for OData expression

@@ -1,4 +1,86 @@
-/* You can add global styles to this file, and also import other style files */
+/* Angular Material theme */
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+// Define palettes
+$web-primary: mat.m2-define-palette(mat.$m2-indigo-palette);
+$web-accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400);
+$web-warn: mat.m2-define-palette(mat.$m2-red-palette);
+
+// Define themes
+$web-light-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $web-primary,
+    accent: $web-accent,
+    warn: $web-warn,
+  )
+));
+
+$web-dark-theme: mat.m2-define-dark-theme((
+  color: (
+    primary: $web-primary,
+    accent: $web-accent,
+    warn: $web-warn,
+  )
+));
+
+// Apply default light theme
+@include mat.all-component-themes($web-light-theme);
 
 /* ngx-toastr styles */
 @import 'ngx-toastr/toastr';
+
+/* Global styles */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  @include mat.all-component-typographies($web-light-theme);
+}
+
+/* Ensure consistent spacing for cards that use title/content without mat-card-header */
+mat-card > mat-card-title,
+mat-card > mat-card-subtitle {
+  display: block;
+  padding: 16px 16px 0;
+}
+
+mat-card > mat-card-title {
+  margin-bottom: 8px;
+}
+
+mat-card > mat-card-content {
+  display: block;
+  padding: 0 16px 16px;
+}
+
+/* Improve contrast for colored chips and badge-like labels */
+mat-chip,
+.mat-chip,
+.mat-mdc-chip,
+.mat-mdc-standard-chip {
+  color: #fff !important;
+}
+
+.mat-mdc-chip .mdc-evolution-chip__text-label {
+  color: #fff !important;
+}
+
+// Dark theme class
+.dark-theme {
+  @include mat.all-component-colors($web-dark-theme);
+  // Important: Set background and text color for the entire app in dark mode
+  background-color: #303030; 
+  color: rgba(255, 255, 255, 0.87);
+}

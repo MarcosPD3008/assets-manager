@@ -15,7 +15,7 @@ export class ReminderService extends BaseService<Reminder> {
   /**
    * Get all reminders with optional filters and pagination
    */
-  getAllPaginated(
+  override getAllPaginated(
     filters?: ODataFilter[],
     pagination?: { page: number; pageSize: number }
   ): Observable<PaginatedResponse<Reminder>> {

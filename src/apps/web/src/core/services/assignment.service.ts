@@ -15,7 +15,7 @@ export class AssignmentService extends BaseService<Assignment> {
   /**
    * Get all assignments with optional filters and pagination
    */
-  getAllPaginated(
+  override getAllPaginated(
     filters?: ODataFilter[],
     pagination?: { page: number; pageSize: number }
   ): Observable<PaginatedResponse<Assignment>> {

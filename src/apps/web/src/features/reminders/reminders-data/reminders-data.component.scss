@@ -1,0 +1,57 @@
+.reminders-container {
+  padding: 24px;
+}
+
+.header-actions {
+  margin-left: auto;
+}
+
+.filters-accordion {
+  margin-bottom: 16px;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.reminders-table {
+  width: 100%;
+}
+
+.status-sent {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.status-pending {
+  color: #ef6c00;
+  font-weight: 600;
+}
+
+.status-overdue {
+  color: #c62828;
+  font-weight: 600;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  gap: 12px;
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px;
+}

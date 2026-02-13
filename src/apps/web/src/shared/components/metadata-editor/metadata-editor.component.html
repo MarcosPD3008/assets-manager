@@ -1,0 +1,35 @@
+<div class="metadata-editor">
+    <div class="metadata-header">
+        <h4>Metadata</h4>
+        <button mat-button color="primary" (click)="addItem()" [disabled]="disabled" type="button">
+            <mat-icon>add</mat-icon>
+            Agregar campo
+        </button>
+    </div>
+
+    <div class="metadata-items" *ngIf="items.length > 0; else noItems">
+        <div class="metadata-row" *ngFor="let item of items; let i = index">
+            <mat-form-field appearance="outline" class="key-field">
+                <mat-label>Clave</mat-label>
+                <input matInput [(ngModel)]="item.key" (ngModelChange)="updateValue()" [disabled]="disabled"
+                    placeholder="Ej. Color">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="value-field">
+                <mat-label>Valor</mat-label>
+                <input matInput [(ngModel)]="item.value" (ngModelChange)="updateValue()" [disabled]="disabled"
+                    placeholder="Ej. Rojo">
+            </mat-form-field>
+
+            <button mat-icon-button color="warn" (click)="removeItem(i)" [disabled]="disabled" type="button">
+                <mat-icon>delete</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <ng-template #noItems>
+        <div class="no-items">
+            <p>No hay metadata definida.</p>
+        </div>
+    </ng-template>
+</div>

@@ -79,3 +79,4 @@ export function createTableColumn(
 ): TableColumn {
   return { key, label, sortable };
 }
+

@@ -1,0 +1,211 @@
+<div class="assets-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Gestión de Assets</mat-card-title>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="openCreateDialog()">
+          <mat-icon>add</mat-icon>
+          Nuevo Asset
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+
+      <!-- Collapsible Filters Section -->
+      <mat-accordion class="filters-accordion">
+        <mat-expansion-panel [expanded]="filtersExpanded" (opened)="filtersExpanded = true"
+          (closed)="filtersExpanded = false">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>filter_list</mat-icon>
+              Filtros
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ filtersExpanded ? '' : 'Expandir para filtrar' }}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div class="filters-container">
+            <mat-form-field appearance="outline">
+              <mat-label>Nombre</mat-label>
+              <input matInput [(ngModel)]="filters.name" placeholder="Buscar por nombre">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Estado</mat-label>
+              <mat-select [(ngModel)]="filters.status">
+                <mat-option value="">Todos</mat-option>
+                <mat-option *ngFor="let status of assetStatuses" [value]="status">
+                  {{ getStatusLabel(status) }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Categoría</mat-label>
+              <input matInput [(ngModel)]="filters.category" placeholder="Buscar por categoría">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Ubicación</mat-label>
+              <input matInput [(ngModel)]="filters.location" placeholder="Buscar por ubicación">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Precio desde</mat-label>
+              <input matInput type="number" [(ngModel)]="filters.priceFrom" placeholder="0">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Precio hasta</mat-label>
+              <input matInput type="number" [(ngModel)]="filters.priceTo" placeholder="0">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Estado de garantía</mat-label>
+              <mat-select [(ngModel)]="filters.warrantyStatus">
+                <mat-option value="">Todos</mat-option>
+                <mat-option value="valid">Vigente</mat-option>
+                <mat-option value="expired">Vencida</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <mat-action-row>
+            <button mat-button (click)="clearFilters()">
+              <mat-icon>clear</mat-icon>
+              Limpiar
+            </button>
+            <button mat-raised-button color="primary" (click)="applyFilters()">
+              <mat-icon>search</mat-icon>
+              Aplicar Filtros
+            </button>
+          </mat-action-row>
+        </mat-expansion-panel>
+      </mat-accordion>
+
+      <!-- Table Section -->
+      <div class="table-container" *ngIf="!loading">
+        <table mat-table [dataSource]="assets" class="assets-table">
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let asset">{{ asset.name }}</td>
+          </ng-container>
+
+          <!-- Serial Number Column -->
+          <ng-container matColumnDef="serialNumber">
+            <th mat-header-cell *matHeaderCellDef>N° Serie</th>
+            <td mat-cell *matCellDef="let asset">{{ asset.serialNumber || '-' }}</td>
+          </ng-container>
+
+          <!-- Category Column -->
+          <ng-container matColumnDef="category">
+            <th mat-header-cell *matHeaderCellDef>Categoría</th>
+            <td mat-cell *matCellDef="let asset">{{ asset.category || '-' }}</td>
+          </ng-container>
+
+          <!-- Location Column -->
+          <ng-container matColumnDef="location">
+            <th mat-header-cell *matHeaderCellDef>Ubicación</th>
+            <td mat-cell *matCellDef="let asset">{{ asset.location || '-' }}</td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Estado</th>
+            <td mat-cell *matCellDef="let asset">
+              <mat-chip [style.background-color]="getStatusColor(asset.status)">
+                {{ getStatusLabel(asset.status) }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Purchase Price Column -->
+          <ng-container matColumnDef="purchasePrice">
+            <th mat-header-cell *matHeaderCellDef>Precio</th>
+            <td mat-cell *matCellDef="let asset">
+              {{ asset.purchasePrice ? (asset.purchasePrice | currency) : '-' }}
+            </td>
+          </ng-container>
+
+          <!-- Warranty Expiry Date Column -->
+          <ng-container matColumnDef="warrantyExpiryDate">
+            <th mat-header-cell *matHeaderCellDef>Garantía</th>
+            <td mat-cell *matCellDef="let asset">
+              <span *ngIf="asset.warrantyExpiryDate" [class.expired]="isWarrantyExpired(asset.warrantyExpiryDate)">
+                {{ asset.warrantyExpiryDate | date:'dd/MM/yyyy' }}
+              </span>
+              <span *ngIf="!asset.warrantyExpiryDate">-</span>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let asset">
+              <button mat-icon-button [matMenuTriggerFor]="actionsMenu" matTooltip="Acciones">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #actionsMenu="matMenu">
+                <button mat-menu-item (click)="openViewDialog(asset)">
+                  <mat-icon>visibility</mat-icon>
+                  <span>Ver detalles</span>
+                </button>
+                <button mat-menu-item (click)="openEditDialog(asset)">
+                  <mat-icon>edit</mat-icon>
+                  <span>Editar</span>
+                </button>
+                <button mat-menu-item [matMenuTriggerFor]="statusMenu">
+                  <mat-icon>swap_horiz</mat-icon>
+                  <span>Cambiar estado</span>
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="deleteAsset(asset)" class="delete-action">
+                  <mat-icon>delete</mat-icon>
+                  <span>Eliminar</span>
+                </button>
+              </mat-menu>
+              <mat-menu #statusMenu="matMenu">
+                <button mat-menu-item *ngFor="let status of assetStatuses" (click)="changeStatus(asset, status)"
+                  [disabled]="asset.status === status">
+                  <mat-chip [style.background-color]="getStatusColor(status)" class="menu-chip">
+                    {{ getStatusLabel(status) }}
+                  </mat-chip>
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <!-- No data row -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+              <div class="no-data">
+                <mat-icon>inbox</mat-icon>
+                <p>No se encontraron assets</p>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+
+
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="loading">
+        <mat-spinner></mat-spinner>
+        <p>Cargando assets...{{loading}}</p>
+      </div>
+
+      <!-- Pagination -->
+      <app-pagination *ngIf="!loading" [total]="total" [page]="page" [pageSize]="pageSize"
+        [pageSizeOptions]="pageSizeOptions" (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+      </app-pagination>
+    </mat-card-content>
+  </mat-card>
+</div>

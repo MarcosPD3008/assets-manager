@@ -1,0 +1,77 @@
+<div class="calendar-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Calendario operativo</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="calendar-toolbar">
+        <button mat-icon-button (click)="previousMonth()">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <h2>{{ getMonthTitle() }}</h2>
+        <button mat-icon-button (click)="nextMonth()">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <div *ngIf="loading" class="loading-container">
+        <mat-spinner></mat-spinner>
+      </div>
+
+      <div class="calendar-layout" *ngIf="!loading">
+        <div class="calendar-grid">
+          <div class="weekday" *ngFor="let day of weekDays">{{ day }}</div>
+          <button
+            type="button"
+            class="day-cell"
+            *ngFor="let day of days"
+            [class.outside]="!day.inMonth"
+            [class.has-events]="day.events.length > 0"
+            [class.selected]="selectedDay && selectedDay.date.toDateString() === day.date.toDateString()"
+            (click)="selectDay(day)"
+          >
+            <span class="day-number">{{ day.date.getDate() }}</span>
+            <div class="dots-row" *ngIf="day.events.length > 0">
+              <span
+                class="event-dot"
+                *ngFor="let event of day.events.slice(0, 3)"
+                [style.background]="getEventColor(event.type)"
+              ></span>
+            </div>
+            <span class="more-events" *ngIf="day.events.length > 3">+{{ day.events.length - 3 }}</span>
+            <span class="event-count" *ngIf="day.events.length > 0">{{ day.events.length }} evento(s)</span>
+          </button>
+        </div>
+
+        <div class="day-panel">
+          <h3>
+            {{
+              selectedDay
+                ? (selectedDay.date | date : 'fullDate')
+                : 'Seleccione un día'
+            }}
+          </h3>
+          <div *ngIf="selectedDay?.events?.length; else noEvents">
+            <mat-card class="event-card" *ngFor="let event of selectedDay?.events">
+              <mat-card-content>
+                <div class="event-header">
+                  <mat-chip [style.background-color]="getEventColor(event.type)">
+                    {{ event.type === 'assignment' ? 'Asignación' : event.type === 'maintenance' ? 'Mantenimiento' : 'Recordatorio' }}
+                  </mat-chip>
+                </div>
+                <p>{{ event.title }}</p>
+                <button mat-button color="primary" (click)="navigateEvent(event)">
+                  Ver detalle
+                </button>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <ng-template #noEvents>
+            <p class="empty-text">No hay eventos para este día.</p>
+          </ng-template>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

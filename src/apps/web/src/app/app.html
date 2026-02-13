@@ -1,3 +1,11 @@
-<app-nx-welcome></app-nx-welcome>
-<app-user-form></app-user-form>
-<router-outlet></router-outlet>
+<div class="app-container">
+  <app-navbar (toggleSidebarEvent)="toggleSidebar()"></app-navbar>
+  <mat-sidenav-container class="main-container">
+    <mat-sidenav #sidenav mode="side" opened class="sidenav">
+      <app-sidebar></app-sidebar>
+    </mat-sidenav>
+    <mat-sidenav-content class="content">
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

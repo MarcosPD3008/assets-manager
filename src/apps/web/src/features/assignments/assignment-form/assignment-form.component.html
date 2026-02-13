@@ -1,0 +1,119 @@
+<ng-container *ngIf="isDialogMode; else pageTemplate">
+  <h2 mat-dialog-title>{{ getTitle() }}</h2>
+  <mat-dialog-content>
+    <ng-container [ngTemplateOutlet]="formContent"></ng-container>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" [disabled]="loading">
+      {{ isViewOnly ? 'Cerrar' : 'Cancelar' }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onSubmit()"
+      [disabled]="assignmentForm.invalid || loading"
+      *ngIf="!isViewOnly"
+    >
+      <mat-icon>save</mat-icon>
+      Guardar
+    </button>
+  </mat-dialog-actions>
+</ng-container>
+
+<ng-template #pageTemplate>
+  <div class="page-container">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ getTitle() }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ng-container [ngTemplateOutlet]="formContent"></ng-container>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-button (click)="onCancel()" [disabled]="loading">
+          {{ isViewOnly ? 'Cerrar' : 'Cancelar' }}
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="onSubmit()"
+          [disabled]="assignmentForm.invalid || loading"
+          *ngIf="!isViewOnly"
+        >
+          <mat-icon>save</mat-icon>
+          Guardar
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</ng-template>
+
+<ng-template #formContent>
+  <form [formGroup]="assignmentForm" class="assignment-form">
+    <div class="form-grid">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Activo</mat-label>
+        <mat-select formControlName="assetId">
+          <mat-option *ngFor="let asset of availableAssets" [value]="asset.id">
+            {{ asset.name }} ({{ asset.serialNumber || 'S/N' }})
+          </mat-option>
+          <mat-option *ngIf="availableAssets.length === 0" disabled>Sin activos disponibles</mat-option>
+        </mat-select>
+        <app-form-error [control]="assignmentForm.get('assetId')" fieldName="El activo"></app-form-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Responsable</mat-label>
+        <mat-select formControlName="assigneeId">
+          <mat-option *ngFor="let contact of contacts" [value]="contact.id">
+            {{ contact.name }} ({{ contact.email }})
+          </mat-option>
+        </mat-select>
+        <app-form-error [control]="assignmentForm.get('assigneeId')" fieldName="El responsable"></app-form-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha de entrega</mat-label>
+        <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #startDatePicker></mat-datepicker>
+        <app-form-error [control]="assignmentForm.get('startDate')" fieldName="La fecha de entrega"></app-form-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha estimada de devolución</mat-label>
+        <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #dueDatePicker></mat-datepicker>
+        <app-form-error [control]="assignmentForm.get('dueDate')" fieldName="La fecha de devolución"></app-form-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Estado</mat-label>
+        <mat-select formControlName="status">
+          <mat-option *ngFor="let status of assignmentStatuses" [value]="status">
+            {{ getStatusLabel(status) }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-checkbox formControlName="isPermanent" color="primary">
+        Asignación permanente
+      </mat-checkbox>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Notas</mat-label>
+        <textarea
+          matInput
+          formControlName="notes"
+          rows="3"
+          placeholder="Notas adicionales sobre la asignación"
+        ></textarea>
+      </mat-form-field>
+    </div>
+  </form>
+
+  <div class="loading-overlay" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+</ng-template>

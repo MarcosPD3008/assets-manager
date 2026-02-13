@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BaseHttpService, BaseHttpServiceOptions } from '@libs/frontend/api-client';
-import { PaginatedResponse, ODataFilter, buildFilterQueryParams } from '@libs/shared';
+import { PaginatedResponse, ODataFilter } from '@libs/shared';
+import { buildFilterQueryParams } from '@shared/utils';
 import { BaseEntity } from '../models/base-entity';
 
 /**
@@ -55,7 +56,7 @@ export abstract class BaseService<T extends BaseEntity> extends BaseHttpService<
    * @param id Resource ID
    * @returns Observable with the entity
    */
-  getById(id: string): Observable<T> {
+  getByIdDirect(id: string): Observable<T> {
     return this.http.get<T>(`${this.baseUrl}/${id}`);
   }
 
@@ -65,7 +66,7 @@ export abstract class BaseService<T extends BaseEntity> extends BaseHttpService<
    * @param data Resource data
    * @returns Observable with the created entity
    */
-  create(data: Partial<T>): Observable<T> {
+  createDirect(data: Partial<T>): Observable<T> {
     const obs = this.http.post<T>(this.baseUrl, data);
     this.invalidateCache();
     return obs;
@@ -78,7 +79,7 @@ export abstract class BaseService<T extends BaseEntity> extends BaseHttpService<
    * @param data Resource data
    * @returns Observable with the updated entity
    */
-  update(id: string, data: Partial<T>): Observable<T> {
+  updateDirect(id: string, data: Partial<T>): Observable<T> {
     const obs = this.http.put<T>(`${this.baseUrl}/${id}`, data);
     this.invalidateCache();
     return obs;
@@ -91,7 +92,7 @@ export abstract class BaseService<T extends BaseEntity> extends BaseHttpService<
    * @param data Resource data
    * @returns Observable with the updated entity
    */
-  patch(id: string, data: Partial<T>): Observable<T> {
+  patchDirect(id: string, data: Partial<T>): Observable<T> {
     const obs = this.http.patch<T>(`${this.baseUrl}/${id}`, data);
     this.invalidateCache();
     return obs;
@@ -103,7 +104,7 @@ export abstract class BaseService<T extends BaseEntity> extends BaseHttpService<
    * @param id Resource ID
    * @returns Observable
    */
-  delete(id: string): Observable<void> {
+  deleteDirect(id: string): Observable<void> {
     const obs = this.http.delete<void>(`${this.baseUrl}/${id}`);
     this.invalidateCache();
     return obs;

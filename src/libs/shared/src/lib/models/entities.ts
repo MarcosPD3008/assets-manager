@@ -28,6 +28,28 @@ export enum ReminderType {
   MAINTENANCE = 'MAINTENANCE',
 }
 
+export enum ReminderStatus {
+  PENDING = 'PENDING',
+  SENT = 'SENT',
+  OVERDUE = 'OVERDUE',
+}
+
+export enum ReminderSourceType {
+  MANUAL = 'MANUAL',
+  RULE = 'RULE',
+}
+
+export enum ReminderOffsetUnit {
+  DAY = 'DAY',
+  WEEK = 'WEEK',
+  MONTH = 'MONTH',
+}
+
+export enum TargetEntityType {
+  ASSIGNMENT = 'ASSIGNMENT',
+  MAINTENANCE = 'MAINTENANCE',
+}
+
 export enum Priority {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
@@ -35,9 +57,19 @@ export enum Priority {
 }
 
 export enum Channel {
+  IN_APP = 'IN_APP',
   EMAIL = 'EMAIL',
   SMS = 'SMS',
   PUSH = 'PUSH',
+  WHATSAPP = 'WHATSAPP',
+}
+
+export enum NotificationDeliveryStatus {
+  QUEUED = 'QUEUED',
+  PROCESSING = 'PROCESSING',
+  SENT = 'SENT',
+  FAILED = 'FAILED',
+  DEAD_LETTER = 'DEAD_LETTER',
 }
 
 export enum TargetType {
@@ -111,26 +143,74 @@ export interface Maintenance extends BaseEntity {
   serviceProvider?: string;
   notes?: string;
   reminders?: Reminder[];
+  executions?: MaintenanceExecution[];
+}
+
+export interface MaintenanceExecution extends BaseEntity {
+  maintenanceId: string;
+  maintenance?: Maintenance;
+  executedAt: Date;
+  cost?: number;
+  serviceProvider?: string;
+  notes?: string;
+  performedBy?: string;
 }
 
 // Reminder interface
 export interface Reminder extends BaseEntity {
   message: string;
   scheduledDate: Date;
-  isSent: boolean;
+  status: ReminderStatus;
+  sourceType: ReminderSourceType;
   type: ReminderType;
   targetType: TargetType;
   targetId: string;
   priority: Priority;
   channel: Channel;
+  reminderRuleId?: string;
+  reminderRule?: ReminderRule;
   assignmentId?: string;
   assignment?: Assignment;
   maintenanceId?: string;
   maintenance?: Maintenance;
+  // Legacy compatibility during migration from isSent -> status.
+  isSent?: boolean;
+}
+
+export interface ReminderRule extends BaseEntity {
+  targetEntityType: TargetEntityType;
+  targetEntityId: string;
+  offsetValue: number;
+  offsetUnit: ReminderOffsetUnit;
+  targetType: TargetType;
+  priority: Priority;
+  channel: Channel;
+  active: boolean;
+  messageTemplate?: string;
+  generatedReminders?: Reminder[];
+}
+
+export interface ReminderDelivery extends BaseEntity {
+  reminderId: string;
+  reminder?: Reminder;
+  channel: Channel;
+  status: NotificationDeliveryStatus;
+  attempts: number;
+  maxAttempts: number;
+  jobId?: string;
+  idempotencyKey: string;
+  queuedAt?: Date;
+  processedAt?: Date;
+  sentAt?: Date;
+  deadLetterAt?: Date;
+  lastError?: string;
+  providerMessageId?: string;
+  payload?: Record<string, unknown>;
 }
 
 // Calendar Response interface
 export interface CalendarResponse {
   assignments: Assignment[];
   maintenances: Maintenance[];
+  reminders: Reminder[];
 }

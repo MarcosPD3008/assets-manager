@@ -1,0 +1,145 @@
+<div class="reminder-form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ getTitle() }}</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="reminderForm" class="reminder-form">
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Mensaje</mat-label>
+            <textarea matInput formControlName="message" rows="3" placeholder="Mensaje del recordatorio"></textarea>
+            <mat-hint>Máximo 500 caracteres</mat-hint>
+            <app-form-error [control]="reminderForm.get('message')" fieldName="El mensaje"></app-form-error>
+          </mat-form-field>
+
+          <div class="section full-width">
+            <label class="section-label">Tipo de configuración</label>
+            <mat-radio-group formControlName="mode" class="radio-group">
+              <mat-radio-button *ngFor="let mode of modeOptions" [value]="mode">
+                {{ mode === 'MANUAL' ? 'Manual' : 'Regla relativa' }}
+              </mat-radio-button>
+            </mat-radio-group>
+          </div>
+
+          <div class="section full-width">
+            <label class="section-label">Entidad objetivo</label>
+            <mat-radio-group formControlName="targetEntityType" class="radio-group">
+              <mat-radio-button [value]="'ASSIGNMENT'">Asignación</mat-radio-button>
+              <mat-radio-button [value]="'MAINTENANCE'">Mantenimiento</mat-radio-button>
+            </mat-radio-group>
+          </div>
+
+          <mat-form-field
+            appearance="outline"
+            class="full-width"
+            *ngIf="reminderForm.get('targetEntityType')?.value === 'ASSIGNMENT'"
+          >
+            <mat-label>Asignación</mat-label>
+            <mat-select formControlName="assignmentId">
+              <mat-option *ngFor="let assignment of assignments" [value]="assignment.id">
+                {{ getAssignmentDisplay(assignment) }}
+              </mat-option>
+            </mat-select>
+            <app-form-error [control]="reminderForm.get('assignmentId')" fieldName="La asignación"></app-form-error>
+          </mat-form-field>
+
+          <mat-form-field
+            appearance="outline"
+            class="full-width"
+            *ngIf="reminderForm.get('targetEntityType')?.value === 'MAINTENANCE'"
+          >
+            <mat-label>Mantenimiento</mat-label>
+            <mat-select formControlName="maintenanceId">
+              <mat-option *ngFor="let maintenance of maintenances" [value]="maintenance.id">
+                {{ getMaintenanceDisplay(maintenance) }}
+              </mat-option>
+            </mat-select>
+            <app-form-error [control]="reminderForm.get('maintenanceId')" fieldName="El mantenimiento"></app-form-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="reminderForm.get('mode')?.value === 'MANUAL'">
+            <mat-label>Fecha programada</mat-label>
+            <input matInput [matDatepicker]="scheduledDatePicker" formControlName="scheduledDate" />
+            <mat-datepicker-toggle matIconSuffix [for]="scheduledDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #scheduledDatePicker></mat-datepicker>
+            <app-form-error [control]="reminderForm.get('scheduledDate')" fieldName="La fecha"></app-form-error>
+          </mat-form-field>
+
+          <ng-container *ngIf="reminderForm.get('mode')?.value === 'RULE'">
+            <mat-form-field appearance="outline">
+              <mat-label>Preset</mat-label>
+              <mat-select formControlName="preset">
+                <mat-option *ngFor="let preset of presets" [value]="preset.value">
+                  {{ preset.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" *ngIf="reminderForm.get('preset')?.value === 'CUSTOM'">
+              <mat-label>Valor personalizado</mat-label>
+              <input matInput type="number" min="1" formControlName="offsetValue" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" *ngIf="reminderForm.get('preset')?.value === 'CUSTOM'">
+              <mat-label>Unidad</mat-label>
+              <mat-select formControlName="offsetUnit">
+                <mat-option *ngFor="let unit of reminderOffsetUnits" [value]="unit">
+                  {{ unit === 'DAY' ? 'Día(s)' : unit === 'WEEK' ? 'Semana(s)' : 'Mes(es)' }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </ng-container>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Destinatario</mat-label>
+            <mat-select formControlName="targetType">
+              <mat-option *ngFor="let targetType of targetTypes" [value]="targetType">
+                {{ translateTargetType(targetType) }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Prioridad</mat-label>
+            <mat-select formControlName="priority">
+              <mat-option *ngFor="let priority of priorities" [value]="priority">
+                {{ translatePriority(priority) }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Canal</mat-label>
+            <mat-select formControlName="channel">
+              <mat-option *ngFor="let channel of channels" [value]="channel">
+                {{ translateChannel(channel) }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </form>
+
+      <div class="loading-overlay" *ngIf="loading">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-button (click)="onCancel()" [disabled]="loading">
+        {{ isViewOnly ? 'Cerrar' : 'Cancelar' }}
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onSubmit()"
+        [disabled]="reminderForm.invalid || loading"
+        *ngIf="!isViewOnly"
+      >
+        <mat-icon>save</mat-icon>
+        {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
