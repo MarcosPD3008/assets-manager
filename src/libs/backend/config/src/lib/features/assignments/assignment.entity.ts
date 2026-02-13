@@ -4,6 +4,7 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import {
   IsNotEmpty,
@@ -22,6 +23,9 @@ import { Contact } from '../contacts/contact.entity';
 import { Reminder } from '../reminders/reminder.entity';
 
 @Entity('assignments')
+@Index('IDX_ASSIGNMENTS_ACTIVE_BY_ASSET', ['assetId'], {
+  where: `"status" = 'ACTIVE' AND "returnDate" IS NULL AND "deletedAt" IS NULL`,
+})
 export class Assignment extends BaseEntityWithTimestamps {
   @ApiPropertyOptional({ description: 'Assigned asset', type: () => Asset })
   @ManyToOne(() => Asset, (asset) => asset.assignments, { onDelete: 'CASCADE' })

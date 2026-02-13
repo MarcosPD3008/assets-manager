@@ -2,6 +2,7 @@ import {
   Entity,
   Column,
   ManyToOne,
+  OneToMany,
   JoinColumn,
   Index,
 } from 'typeorm';
@@ -11,14 +12,22 @@ import {
   IsEnum,
   IsOptional,
   IsDateString,
-  IsBoolean,
   IsUUID,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithTimestamps } from '../../users/entities/base.entity';
-import { ReminderType, Priority, Channel, TargetType } from '../shared/enums';
+import {
+  ReminderType,
+  Priority,
+  Channel,
+  TargetType,
+  ReminderStatus,
+  ReminderSourceType,
+} from '../shared/enums';
 import { Assignment } from '../assignments/assignment.entity';
 import { Maintenance } from '../maintenances/maintenance.entity';
+import { ReminderRule } from './reminder-rule.entity';
+import { ReminderDelivery } from './reminder-delivery.entity';
 
 @Entity('reminders')
 @Index(['targetType', 'targetId'])
@@ -35,10 +44,33 @@ export class Reminder extends BaseEntityWithTimestamps {
   @IsDateString()
   scheduledDate!: Date;
 
-  @ApiProperty({ description: 'Whether the reminder has been sent', default: false, example: false })
-  @Column({ default: false })
-  @IsBoolean()
-  isSent!: boolean;
+  @ApiProperty({
+    description: 'Reminder status',
+    enum: ReminderStatus,
+    default: ReminderStatus.PENDING,
+    example: ReminderStatus.PENDING,
+  })
+  @Column({
+    type: 'enum',
+    enum: ReminderStatus,
+    default: ReminderStatus.PENDING,
+  })
+  @IsEnum(ReminderStatus)
+  status!: ReminderStatus;
+
+  @ApiProperty({
+    description: 'Reminder source type',
+    enum: ReminderSourceType,
+    default: ReminderSourceType.MANUAL,
+    example: ReminderSourceType.MANUAL,
+  })
+  @Column({
+    type: 'enum',
+    enum: ReminderSourceType,
+    default: ReminderSourceType.MANUAL,
+  })
+  @IsEnum(ReminderSourceType)
+  sourceType!: ReminderSourceType;
 
   @ApiProperty({ description: 'Reminder type', enum: ReminderType, example: ReminderType.MAINTENANCE })
   @Column({
@@ -72,11 +104,11 @@ export class Reminder extends BaseEntityWithTimestamps {
   @IsEnum(Priority)
   priority!: Priority;
 
-  @ApiProperty({ description: 'Notification channel', enum: Channel, default: Channel.EMAIL, example: Channel.EMAIL })
+  @ApiProperty({ description: 'Notification channel', enum: Channel, default: Channel.IN_APP, example: Channel.IN_APP })
   @Column({
     type: 'enum',
     enum: Channel,
-    default: Channel.EMAIL,
+    default: Channel.IN_APP,
   })
   @IsEnum(Channel)
   channel!: Channel;
@@ -110,4 +142,35 @@ export class Reminder extends BaseEntityWithTimestamps {
   @IsOptional()
   @IsUUID()
   maintenanceId?: string;
+
+  @ApiPropertyOptional({ description: 'Rule that generated this reminder', type: () => ReminderRule })
+  @ManyToOne(() => ReminderRule, (rule) => rule.generatedReminders, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'reminderRuleId' })
+  @IsOptional()
+  reminderRule?: ReminderRule;
+
+  @ApiPropertyOptional({
+    description: 'Reminder rule UUID when generated from a rule',
+    example: '123e4567-e89b-12d3-a456-426614174003',
+  })
+  @Column({ name: 'reminderRuleId', nullable: true })
+  @IsOptional()
+  @IsUUID()
+  reminderRuleId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Delivery attempts for this reminder',
+    type: () => ReminderDelivery,
+    isArray: true,
+  })
+  @OneToMany(() => ReminderDelivery, (delivery) => delivery.reminder)
+  deliveries?: ReminderDelivery[];
+
+  // Legacy compatibility for frontend while migrating from isSent to status.
+  get isSent(): boolean {
+    return this.status === ReminderStatus.SENT;
+  }
 }

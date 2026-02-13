@@ -27,11 +27,12 @@ export class RemindersController {
   @Get()
   @ApiGet({
     summary: 'Get all reminders',
-    description: 'Retrieve a paginated list of reminders. Supports OData filters: filter=isSent eq false. Query params: page (default: 1), pageSize (default: 10)',
+    description: 'Retrieve a paginated list of reminders. Supports OData filters: filter=status eq PENDING. Query params: page (default: 1), pageSize (default: 10)',
     responseType: Reminder,
     isPaginated: true,
   })
   async findAll(@Query() query: Record<string, any>): Promise<{ items: Reminder[]; total: number }> {
+    await this.reminderService.markOverdueReminders();
     const page = parseInt(query.page as string, 10) || 1;
     const pageSize = parseInt(query.pageSize as string, 10) || 10;
     const where = parseFiltersFromQuery<Reminder>(query);

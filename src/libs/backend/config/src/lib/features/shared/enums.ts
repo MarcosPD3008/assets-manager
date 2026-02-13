@@ -23,6 +23,28 @@ export enum ReminderType {
   MAINTENANCE = 'MAINTENANCE',
 }
 
+export enum ReminderStatus {
+  PENDING = 'PENDING',
+  SENT = 'SENT',
+  OVERDUE = 'OVERDUE',
+}
+
+export enum ReminderSourceType {
+  MANUAL = 'MANUAL',
+  RULE = 'RULE',
+}
+
+export enum ReminderOffsetUnit {
+  DAY = 'DAY',
+  WEEK = 'WEEK',
+  MONTH = 'MONTH',
+}
+
+export enum TargetEntityType {
+  ASSIGNMENT = 'ASSIGNMENT',
+  MAINTENANCE = 'MAINTENANCE',
+}
+
 export enum Priority {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
@@ -30,9 +52,19 @@ export enum Priority {
 }
 
 export enum Channel {
+  IN_APP = 'IN_APP',
   EMAIL = 'EMAIL',
   SMS = 'SMS',
   PUSH = 'PUSH',
+  WHATSAPP = 'WHATSAPP',
+}
+
+export enum NotificationDeliveryStatus {
+  QUEUED = 'QUEUED',
+  PROCESSING = 'PROCESSING',
+  SENT = 'SENT',
+  FAILED = 'FAILED',
+  DEAD_LETTER = 'DEAD_LETTER',
 }
 
 export enum TargetType {

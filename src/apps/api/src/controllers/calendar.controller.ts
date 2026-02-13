@@ -1,10 +1,12 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
   AssignmentService,
   MaintenanceService,
+  ReminderService,
   Assignment,
   Maintenance,
+  Reminder,
   CalendarQueryDto,
 } from '@libs/backend-config';
 import { ApiGet } from '../decorators/api-crud.decorator';
@@ -15,6 +17,7 @@ export class CalendarController {
   constructor(
     private readonly assignmentService: AssignmentService,
     private readonly maintenanceService: MaintenanceService,
+    private readonly reminderService: ReminderService,
   ) {}
 
   @Get()
@@ -26,31 +29,34 @@ export class CalendarController {
   })
   async getCalendar(
     @Query() query: CalendarQueryDto,
-  ): Promise<{ assignments: Assignment[]; maintenances: Maintenance[] }> {
-    // Parsear fecha (aceptar YYYY-MM-DD o YYYY-MM)
+  ): Promise<{
+    assignments: Assignment[];
+    maintenances: Maintenance[];
+    reminders: Reminder[];
+  }> {
+    // Parse manual para evitar desfases de zona horaria al usar new Date('YYYY-MM-DD')
     const dateStr = query.date;
-    let date: Date;
-
-    if (dateStr.match(/^\d{4}-\d{2}$/)) {
-      // Formato YYYY-MM
-      date = new Date(dateStr + '-01');
-    } else {
-      // Formato YYYY-MM-DD
-      date = new Date(dateStr);
+    const match = dateStr.match(/^(\d{4})-(\d{2})(?:-(\d{2}))?$/);
+    if (!match) {
+      throw new BadRequestException(
+        'Formato de fecha inválido. Use YYYY-MM o YYYY-MM-DD',
+      );
     }
 
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1; // getMonth() retorna 0-11
+    const year = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10);
 
     // Obtener assignments y maintenances en paralelo
-    const [assignments, maintenances] = await Promise.all([
+    const [assignments, maintenances, reminders] = await Promise.all([
       this.assignmentService.findActiveByMonth(year, month),
       this.maintenanceService.findByMonth(year, month),
+      this.reminderService.findByMonth(year, month),
     ]);
 
     return {
       assignments,
       maintenances,
+      reminders,
     };
   }
 }

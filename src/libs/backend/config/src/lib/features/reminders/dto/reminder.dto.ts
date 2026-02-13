@@ -7,7 +7,14 @@ import {
   IsUUID,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ReminderType, Priority, Channel, TargetType } from '../../shared/enums';
+import {
+  ReminderType,
+  Priority,
+  Channel,
+  TargetType,
+  ReminderSourceType,
+  ReminderStatus,
+} from '../../shared/enums';
 
 export class CreateReminderDto {
   @ApiProperty({ description: 'Reminder message', example: 'Asset maintenance due in 3 days' })
@@ -40,7 +47,7 @@ export class CreateReminderDto {
   @IsEnum(Priority)
   priority?: Priority;
 
-  @ApiPropertyOptional({ description: 'Notification channel', enum: Channel, default: Channel.EMAIL })
+  @ApiPropertyOptional({ description: 'Notification channel', enum: Channel, default: Channel.IN_APP })
   @IsOptional()
   @IsEnum(Channel)
   channel?: Channel;
@@ -54,6 +61,24 @@ export class CreateReminderDto {
   @IsOptional()
   @IsUUID()
   maintenanceId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Source type',
+    enum: ReminderSourceType,
+    default: ReminderSourceType.MANUAL,
+  })
+  @IsOptional()
+  @IsEnum(ReminderSourceType)
+  sourceType?: ReminderSourceType;
+
+  @ApiPropertyOptional({
+    description: 'Status',
+    enum: ReminderStatus,
+    default: ReminderStatus.PENDING,
+  })
+  @IsOptional()
+  @IsEnum(ReminderStatus)
+  status?: ReminderStatus;
 }
 
 export class UpdateReminderDto {
@@ -101,4 +126,14 @@ export class UpdateReminderDto {
   @IsOptional()
   @IsUUID()
   maintenanceId?: string;
+
+  @ApiPropertyOptional({ description: 'Source type', enum: ReminderSourceType })
+  @IsOptional()
+  @IsEnum(ReminderSourceType)
+  sourceType?: ReminderSourceType;
+
+  @ApiPropertyOptional({ description: 'Status', enum: ReminderStatus })
+  @IsOptional()
+  @IsEnum(ReminderStatus)
+  status?: ReminderStatus;
 }

@@ -19,7 +19,9 @@
       "@libs/backend-config": ["src/libs/backend/config/src/index.ts"],
       "@libs/backend-common": ["src/libs/backend/common/src/index.ts"],
       "@libs/frontend-common": ["src/libs/frontend/common/src/index.ts"],
-      "@libs/frontend/api-client": ["src/libs/frontend/api-client/src/index.ts"]
+      "@libs/frontend/api-client": ["src/libs/frontend/api-client/src/index.ts"],
+      "@core/*": ["src/apps/web/src/core/*"],
+      "@shared/*": ["src/apps/web/src/shared/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

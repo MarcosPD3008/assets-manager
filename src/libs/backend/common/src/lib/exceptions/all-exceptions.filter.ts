@@ -7,10 +7,33 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ErrorResponse, ValidationError } from '@libs/shared';
 import { LoggerService } from '../logger/logger.service';
 import { QueryFailedError, EntityNotFoundError, TypeORMError } from 'typeorm';
 import { TimeoutError } from 'rxjs';
+
+/**
+ * Standard error response format from API
+ */
+export interface ErrorResponse {
+  success: false;
+  message: string;
+  statusCode: number;
+  error?: string;
+  errors?: ValidationError[];
+  timestamp: string;
+  path: string;
+  stack?: string; // Only in development
+}
+
+/**
+ * Validation error details
+ */
+export interface ValidationError {
+  field: string;
+  message: string;
+  value?: any;
+}
+
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {

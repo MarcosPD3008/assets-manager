@@ -6,7 +6,14 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { types as pgTypes } from 'pg';
 import { AppModule } from './app/app.module';
+
+// Normalize PostgreSQL timestamp without timezone (OID 1114) as UTC.
+pgTypes.setTypeParser(1114, (value: string) => {
+  const normalized = value.replace(' ', 'T');
+  return new Date(`${normalized}Z`);
+});
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -39,6 +46,8 @@ async function bootstrap() {
     .addTag('Assignments', 'Assignment management endpoints')
     .addTag('Maintenances', 'Maintenance scheduling endpoints')
     .addTag('Reminders', 'Reminder management endpoints')
+    .addTag('Reminder Rules', 'Relative reminder rule endpoints')
+    .addTag('Notification Deliveries', 'Notification delivery and retry endpoints')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);

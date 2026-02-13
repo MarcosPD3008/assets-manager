@@ -21,6 +21,7 @@ import { BaseEntityWithTimestamps } from '../../users/entities/base.entity';
 import { FrequencyUnit } from '../shared/enums';
 import { Asset } from '../assets/asset.entity';
 import { Reminder } from '../reminders/reminder.entity';
+import { MaintenanceExecution } from './maintenance-execution.entity';
 
 @Entity('maintenances')
 export class Maintenance extends BaseEntityWithTimestamps {
@@ -92,6 +93,10 @@ export class Maintenance extends BaseEntityWithTimestamps {
   @ApiPropertyOptional({ description: 'Related reminders', type: () => Reminder, isArray: true })
   @OneToMany(() => Reminder, (reminder) => reminder.maintenance)
   reminders!: Reminder[];
+
+  @ApiPropertyOptional({ description: 'Execution history', type: () => MaintenanceExecution, isArray: true })
+  @OneToMany(() => MaintenanceExecution, (execution) => execution.maintenance)
+  executions!: MaintenanceExecution[];
 
   calculateNextDate(): Date {
     if (!this.lastServiceDate) {

@@ -38,6 +38,7 @@ export class AssignmentsController {
 
     return await this.assignmentService.findAllPaginated({
       where: Object.keys(where).length > 0 ? where : undefined,
+      relations: ['asset', 'assignee'],
       page,
       pageSize,
     });

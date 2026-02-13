@@ -47,6 +47,15 @@ services:
       - DB_USERNAME=postgres
       - DB_PASSWORD=password
       - DB_DATABASE=nest_monorepo
+      - NOTIFICATION_QUEUE_DRIVER=pgboss
+      - NOTIFICATION_CRON_ENABLED=true
+      - NOTIFICATION_CRON_EXPRESSION=*/5 * * * *
+      - NOTIFICATION_WORKER_ENABLED=true
+      - NOTIFICATION_MAX_ATTEMPTS=5
+      - NOTIFICATION_RETRY_BACKOFF=true
+      - NOTIFICATION_DLQ_NAME=notifications.dead-letter
+      - NOTIFICATION_ACTIVE_CHANNELS=IN_APP
+      - APP_TIMEZONE=UTC
     depends_on:
       postgres:
         condition: service_healthy

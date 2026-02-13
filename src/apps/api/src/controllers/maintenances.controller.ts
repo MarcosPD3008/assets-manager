@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -14,9 +15,11 @@ import {
   Maintenance,
   CreateMaintenanceDto,
   UpdateMaintenanceDto,
+  ExecuteMaintenanceDto,
+  MaintenanceExecution,
   parseFiltersFromQuery,
 } from '@libs/backend-config';
-import { ApiGet, ApiPost, ApiPut, ApiDelete } from '../decorators/api-crud.decorator';
+import { ApiGet, ApiPost, ApiPut, ApiPatch, ApiDelete } from '../decorators/api-crud.decorator';
 
 @ApiTags('Maintenances')
 @Controller('maintenances')
@@ -37,6 +40,7 @@ export class MaintenancesController {
 
     return await this.maintenanceService.findAllPaginated({
       where: Object.keys(where).length > 0 ? where : undefined,
+      relations: ['asset'],
       page,
       pageSize,
     });
@@ -79,6 +83,51 @@ export class MaintenancesController {
     @Body() updateMaintenanceDto: UpdateMaintenanceDto,
   ): Promise<Maintenance> {
     return await this.maintenanceService.update(id, updateMaintenanceDto);
+  }
+
+  @Patch(':id/execute')
+  @ApiPatch({
+    summary: 'Execute maintenance',
+    description: 'Register maintenance execution, update dates and regenerate rule reminders',
+    responseType: Object,
+    bodyType: ExecuteMaintenanceDto,
+    paramName: 'id',
+    paramDescription: 'Maintenance UUID',
+  })
+  async execute(
+    @Param('id') id: string,
+    @Body() executeMaintenanceDto: ExecuteMaintenanceDto,
+  ): Promise<{ maintenance: Maintenance; execution: MaintenanceExecution }> {
+    return await this.maintenanceService.executeMaintenance(id, executeMaintenanceDto);
+  }
+
+  @Get(':id/history')
+  @ApiGet({
+    summary: 'Get maintenance execution history',
+    description: 'Retrieve all executions for a maintenance ordered by most recent first',
+    responseType: MaintenanceExecution,
+    isArray: true,
+    paramName: 'id',
+    paramDescription: 'Maintenance UUID',
+  })
+  async history(@Param('id') id: string): Promise<MaintenanceExecution[]> {
+    return await this.maintenanceService.findExecutionHistory(id);
+  }
+
+  @Get('cost-summary/monthly')
+  @ApiGet({
+    summary: 'Get maintenance monthly cost summary',
+    description: 'Retrieve total and per-asset costs for an optional month/year period',
+    responseType: Object,
+  })
+  async getCostSummary(
+    @Query('month') month?: string,
+    @Query('year') year?: string,
+  ): Promise<{ total: number; byAsset: Array<{ assetId: string; assetName: string; total: number }> }> {
+    return await this.maintenanceService.getCostSummary(
+      month ? parseInt(month, 10) : undefined,
+      year ? parseInt(year, 10) : undefined,
+    );
   }
 
   @Delete(':id')

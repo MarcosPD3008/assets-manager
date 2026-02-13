@@ -29,13 +29,20 @@ export * from './lib/features/assignments/assignment.service';
 
 // Features - Maintenances
 export * from './lib/features/maintenances/maintenance.entity';
+export * from './lib/features/maintenances/maintenance-execution.entity';
 export * from './lib/features/maintenances/dto/maintenance.dto';
+export * from './lib/features/maintenances/dto/maintenance-execution.dto';
 export * from './lib/features/maintenances/maintenance.service';
 
 // Features - Reminders
 export * from './lib/features/reminders/reminder.entity';
+export * from './lib/features/reminders/reminder-rule.entity';
+export * from './lib/features/reminders/reminder-delivery.entity';
 export * from './lib/features/reminders/dto/reminder.dto';
+export * from './lib/features/reminders/dto/reminder-rule.dto';
 export * from './lib/features/reminders/reminder.service';
+export * from './lib/features/reminders/reminder-rule.service';
+export * from './lib/features/reminders/reminder-delivery.service';
 
 // Utils
 export * from './lib/utils/odata-filter-backend';

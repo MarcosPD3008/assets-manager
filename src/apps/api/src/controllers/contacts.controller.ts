@@ -42,6 +42,18 @@ export class ContactsController {
     });
   }
 
+  @Get(':id')
+  @ApiGet({
+    summary: 'Get contact by ID',
+    description: 'Retrieve a single contact by its ID',
+    responseType: Contact,
+    paramName: 'id',
+    paramDescription: 'Contact UUID',
+  })
+  async findOne(@Param('id') id: string): Promise<Contact> {
+    return await this.contactService.findById(id);
+  }
+
   @Post()
   @ApiPost({
     summary: 'Create a new contact',
