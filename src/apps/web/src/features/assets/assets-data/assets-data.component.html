@@ -3,11 +3,38 @@
     <mat-card-header>
       <mat-card-title>Gestión de Assets</mat-card-title>
       <div class="header-actions">
+        <button mat-stroked-button [matMenuTriggerFor]="exportMenu" [disabled]="exportInProgress">
+          <mat-icon>{{ exportInProgress ? 'hourglass_top' : 'download' }}</mat-icon>
+          {{ exportInProgress ? 'Exportando...' : 'Exportar' }}
+        </button>
+        <button mat-stroked-button (click)="openImportPage()">
+          <mat-icon>upload_file</mat-icon>
+          Importar
+        </button>
         <button mat-raised-button color="primary" (click)="openCreateDialog()">
           <mat-icon>add</mat-icon>
           Nuevo Asset
         </button>
       </div>
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="requestExport('excel', 'page')">
+          <mat-icon>table_view</mat-icon>
+          <span>Excel - Página actual</span>
+        </button>
+        <button mat-menu-item (click)="requestExport('excel', 'all')">
+          <mat-icon>table_chart</mat-icon>
+          <span>Excel - Todos los registros</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="requestExport('pdf', 'page')">
+          <mat-icon>picture_as_pdf</mat-icon>
+          <span>PDF - Página actual</span>
+        </button>
+        <button mat-menu-item (click)="requestExport('pdf', 'all')">
+          <mat-icon>article</mat-icon>
+          <span>PDF - Todos los registros</span>
+        </button>
+      </mat-menu>
     </mat-card-header>
 
     <mat-card-content>

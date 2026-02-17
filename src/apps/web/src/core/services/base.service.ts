@@ -1,10 +1,18 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BaseHttpService, BaseHttpServiceOptions } from '@libs/frontend/api-client';
 import { PaginatedResponse, ODataFilter } from '@libs/shared';
-import { buildFilterQueryParams } from '@shared/utils';
-import { BaseEntity } from '../models/base-entity';
+import { buildFilterQueryParams } from '../../shared/utils';
+import {
+  BaseEntity,
+  BulkImportCommitResponse,
+  BulkImportRowPayload,
+  BulkImportValidationResponse,
+} from '../models';
+
+export type ExportFormat = 'excel' | 'pdf';
+export type ExportScope = 'page' | 'all';
 
 /**
  * Base service with OData filter and pagination support
@@ -48,6 +56,52 @@ export abstract class BaseService<T extends BaseEntity> extends BaseHttpService<
     params = params.set('pageSize', pageSize.toString());
 
     return this.http.get<PaginatedResponse<T>>(this.baseUrl, { params });
+  }
+
+  /**
+   * Export resources to file (excel/pdf), supporting current page or all data.
+   */
+  exportData(
+    format: ExportFormat,
+    scope: ExportScope,
+    filters?: ODataFilter[],
+    pagination?: { page: number; pageSize: number }
+  ): Observable<HttpResponse<Blob>> {
+    let params = new HttpParams()
+      .set('format', format)
+      .set('scope', scope);
+
+    if (filters && filters.length > 0) {
+      const filterParams = buildFilterQueryParams(filters);
+      Object.entries(filterParams).forEach(([key, value]) => {
+        params = params.set(key, value);
+      });
+    }
+
+    if (scope === 'page') {
+      const page = pagination?.page ?? 1;
+      const pageSize = pagination?.pageSize ?? 10;
+      params = params.set('page', page.toString());
+      params = params.set('pageSize', pageSize.toString());
+    }
+
+    return this.http.get(`${this.baseUrl}/export`, {
+      params,
+      observe: 'response',
+      responseType: 'blob',
+    });
+  }
+
+  validateBulkImport(rows: BulkImportRowPayload[]): Observable<BulkImportValidationResponse> {
+    return this.http.post<BulkImportValidationResponse>(`${this.baseUrl}/import/validate`, {
+      rows,
+    });
+  }
+
+  commitBulkImport(rows: BulkImportRowPayload[]): Observable<BulkImportCommitResponse> {
+    return this.http.post<BulkImportCommitResponse>(`${this.baseUrl}/import/commit`, {
+      rows,
+    });
   }
 
   /**

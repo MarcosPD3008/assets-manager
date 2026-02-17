@@ -5,13 +5,13 @@
 
 .nav-header {
   padding: 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid var(--app-border);
 
   h3 {
     margin: 0;
     font-size: 1rem;
     font-weight: 500;
-    color: rgba(0, 0, 0, 0.87);
+    color: var(--app-text-primary);
   }
 }
 
@@ -20,17 +20,19 @@ mat-nav-list {
 }
 
 a[mat-list-item] {
+  color: var(--app-text-primary);
+
   &.active {
     background-color: rgba(63, 81, 181, 0.1);
-    color: #3f51b5;
+    color: var(--app-link);
 
     mat-icon {
-      color: #3f51b5;
+      color: var(--app-link);
     }
   }
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: var(--app-row-hover);
   }
 }
 

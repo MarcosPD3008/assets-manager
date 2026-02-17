@@ -27,6 +27,12 @@ export const appRoutes: Route[] = [
                 import('../features/assets/asset-form/asset-form.component').then((m) => m.AssetFormComponent),
         },
         {
+            path: 'import',
+            loadComponent: () =>
+                import('../features/imports/bulk-import.component').then((m) => m.BulkImportComponent),
+            data: { importEntity: 'assets' },
+        },
+        {
             path: 'view/:id',
             loadComponent: () =>
                 import('../features/assets/asset-form/asset-form.component').then((m) => m.AssetFormComponent),
@@ -110,6 +116,12 @@ export const appRoutes: Route[] = [
             path: 'new',
             loadComponent: () =>
                 import('../features/contacts/contact-form/contact-form.component').then((m) => m.ContactFormComponent),
+        },
+        {
+            path: 'import',
+            loadComponent: () =>
+                import('../features/imports/bulk-import.component').then((m) => m.BulkImportComponent),
+            data: { importEntity: 'contacts' },
         },
         {
             path: 'view/:id',

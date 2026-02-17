@@ -1,5 +1,9 @@
 .calendar-container {
   padding: 24px;
+
+  mat-card-title {
+    color: var(--app-text-primary);
+  }
 }
 
 .calendar-toolbar {
@@ -8,6 +12,10 @@
   justify-content: center;
   gap: 12px;
   margin-bottom: 12px;
+
+  h2 {
+    color: var(--app-text-primary);
+  }
 }
 
 .calendar-layout {
@@ -26,13 +34,15 @@
   text-align: center;
   font-weight: 600;
   padding: 8px 0;
+  color: var(--app-text-primary);
 }
 
 .day-cell {
   min-height: 90px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--app-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--app-surface);
+  color: var(--app-text-primary);
   text-align: left;
   padding: 8px;
   display: flex;
@@ -47,7 +57,7 @@
 
 .day-cell.has-events {
   border-color: #90caf9;
-  background: #f8fbff;
+  background: var(--app-calendar-event-bg);
 }
 
 .day-cell.selected {
@@ -57,6 +67,7 @@
 
 .day-number {
   font-weight: 700;
+  color: var(--app-text-primary);
 }
 
 .event-dot {
@@ -74,7 +85,7 @@
 
 .more-events {
   font-size: 0.75rem;
-  color: #616161;
+  color: var(--app-text-secondary);
 }
 
 .event-count {
@@ -84,14 +95,28 @@
 }
 
 .day-panel {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--app-border);
   border-radius: 8px;
   padding: 12px;
-  background: #fafafa;
+  background: var(--app-surface-muted);
+  color: var(--app-text-primary);
+
+  h3 {
+    color: var(--app-text-primary);
+  }
 }
 
 .event-card {
   margin-bottom: 8px;
+  background: var(--app-surface) !important;
+
+  p {
+    color: var(--app-text-primary);
+  }
+
+  button {
+    color: var(--app-link);
+  }
 }
 
 .event-header {
@@ -99,7 +124,7 @@
 }
 
 .empty-text {
-  color: #757575;
+  color: var(--app-text-secondary);
 }
 
 .loading-container {

@@ -1,0 +1,145 @@
+<div class="import-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Importación Masiva - {{ entityLabel }}</mat-card-title>
+      <div class="header-actions">
+        <button mat-button (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Volver
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <section class="upload-section">
+        <div class="upload-actions">
+          <button mat-raised-button color="primary" (click)="fileInput.click()" [disabled]="parsingFile || validatingRows || committingRows">
+            <mat-icon>upload_file</mat-icon>
+            {{ parsingFile ? 'Leyendo archivo...' : 'Seleccionar Excel' }}
+          </button>
+          <input #fileInput type="file" accept=".xlsx,.xls" (change)="onFileSelected($event)" hidden />
+          <span class="file-name" *ngIf="selectedFileName">{{ selectedFileName }}</span>
+        </div>
+      </section>
+
+      <section class="mapping-section" *ngIf="headers.length > 0">
+        <h3>Mapeo de columnas</h3>
+        <p>Relaciona cada propiedad con una columna del archivo.</p>
+        <div class="mapping-grid">
+          <mat-form-field appearance="outline" *ngFor="let field of fields; trackBy: trackByField">
+            <mat-label>{{ field.label }} <span *ngIf="field.required">*</span></mat-label>
+            <mat-select [(ngModel)]="mapping[field.key]">
+              <mat-option value="">No mapear</mat-option>
+              <mat-option *ngFor="let header of headers" [value]="header">{{ header }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="mapping-actions">
+          <button mat-raised-button color="accent" (click)="startValidation()" [disabled]="!requiredMappingsReady || validatingRows || committingRows">
+            <mat-icon>fact_check</mat-icon>
+            {{ validatingRows ? 'Validando...' : 'Validar archivo' }}
+          </button>
+        </div>
+      </section>
+
+      <section class="review-section" *ngIf="rows.length > 0">
+        <div class="summary">
+          <mat-chip color="primary" selected>Total: {{ totalRows }}</mat-chip>
+          <mat-chip color="accent" selected>Válidas: {{ validRows }}</mat-chip>
+          <mat-chip color="warn" selected>Inválidas: {{ invalidRows }}</mat-chip>
+        </div>
+
+        <div class="review-actions">
+          <button mat-button (click)="revalidateRows()" [disabled]="validatingRows || committingRows">
+            <mat-icon>refresh</mat-icon>
+            Revalidar
+          </button>
+          <button mat-button color="warn" (click)="removeInvalidRows()" [disabled]="invalidRows === 0 || validatingRows || committingRows">
+            <mat-icon>delete_sweep</mat-icon>
+            Eliminar inválidas
+          </button>
+          <button mat-raised-button color="primary" (click)="commitImport()" [disabled]="!canCommit">
+            <mat-icon>playlist_add_check</mat-icon>
+            {{ committingRows ? 'Insertando...' : 'Insertar masivo' }}
+          </button>
+        </div>
+
+        <div class="blocking-note" *ngIf="invalidRows > 0">
+          Debes corregir o eliminar las filas inválidas para continuar.
+        </div>
+
+        <div class="table-container">
+          <table class="import-table">
+            <thead>
+              <tr>
+                <th>Fila</th>
+                <th *ngFor="let field of fields; trackBy: trackByField">{{ field.label }}</th>
+                <th>Errores</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of rows; trackBy: trackByRow" [class.invalid-row]="!row.isValid">
+                <td>{{ row.rowNumber }}</td>
+                <td *ngFor="let field of fields; trackBy: trackByField">
+                  <ng-container [ngSwitch]="field.type">
+                    <mat-form-field appearance="outline" class="cell-field" *ngSwitchCase="'enum'">
+                      <mat-select [ngModel]="getCellValue(row, field.key)" (ngModelChange)="setCellValue(row, field.key, $event)">
+                        <mat-option value="">(vacío)</mat-option>
+                        <mat-option *ngFor="let option of field.enumOptions || []" [value]="option.value">
+                          {{ option.label }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="cell-field" *ngSwitchCase="'number'">
+                      <input
+                        matInput
+                        type="number"
+                        [ngModel]="getCellValue(row, field.key)"
+                        (ngModelChange)="setCellValue(row, field.key, $event)"
+                      />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="cell-field" *ngSwitchCase="'date'">
+                      <input
+                        matInput
+                        type="date"
+                        [ngModel]="getCellValue(row, field.key)"
+                        (ngModelChange)="setCellValue(row, field.key, $event)"
+                      />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="cell-field" *ngSwitchDefault>
+                      <input
+                        matInput
+                        [ngModel]="getCellValue(row, field.key)"
+                        (ngModelChange)="setCellValue(row, field.key, $event)"
+                      />
+                    </mat-form-field>
+                  </ng-container>
+                </td>
+                <td class="errors-cell">
+                  <ng-container *ngIf="row.errors.length > 0; else noErrors">
+                    <ul>
+                      <li *ngFor="let error of row.errors">{{ error }}</li>
+                    </ul>
+                  </ng-container>
+                  <ng-template #noErrors>
+                    <span class="ok-label">OK</span>
+                  </ng-template>
+                </td>
+                <td>
+                  <button mat-icon-button color="warn" (click)="removeRow(row.rowNumber)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -36,6 +36,22 @@ $web-dark-theme: mat.m2-define-dark-theme((
   box-sizing: border-box;
 }
 
+:root,
+body.light-theme {
+  --app-text-primary: #1f2937;
+  --app-text-secondary: #6b7280;
+  --app-surface: #ffffff;
+  --app-surface-muted: #f4f6fb;
+  --app-surface-subtle: #eef4ff;
+  --app-border: #d8dee8;
+  --app-table-header-bg: #f3f5f8;
+  --app-table-header-fg: #1f2937;
+  --app-row-hover: #f8fafc;
+  --app-calendar-event-bg: #f8fbff;
+  --app-calendar-outside-bg: #f1f3f6;
+  --app-link: #3f51b5;
+}
+
 html, body {
   height: 100%;
   margin: 0;
@@ -83,4 +99,51 @@ mat-chip,
   // Important: Set background and text color for the entire app in dark mode
   background-color: #303030; 
   color: rgba(255, 255, 255, 0.87);
+  --app-text-primary: rgba(255, 255, 255, 0.92);
+  --app-text-secondary: rgba(255, 255, 255, 0.72);
+  --app-surface: #3a3d45;
+  --app-surface-muted: #2f3239;
+  --app-surface-subtle: #263b56;
+  --app-border: rgba(255, 255, 255, 0.14);
+  --app-table-header-bg: #2c313a;
+  --app-table-header-fg: #f3f5fa;
+  --app-row-hover: rgba(255, 255, 255, 0.05);
+  --app-calendar-event-bg: #22364f;
+  --app-calendar-outside-bg: #4b4f58;
+  --app-link: #9ebcff;
+}
+
+/* Shared readable colors in both themes */
+.mat-mdc-card,
+.mat-expansion-panel,
+.mat-mdc-table,
+.mat-mdc-paginator {
+  color: var(--app-text-primary);
+}
+
+.mat-expansion-panel-header-description,
+.mat-expansion-panel-header-title,
+.mat-mdc-select-value-text,
+.mat-mdc-paginator,
+.mat-mdc-paginator .mat-mdc-select-value-text {
+  color: var(--app-text-secondary);
+}
+
+.mat-mdc-table .mat-mdc-header-row,
+.mat-mdc-table .mdc-data-table__header-row {
+  background-color: var(--app-table-header-bg);
+}
+
+.mat-mdc-table .mat-mdc-header-cell,
+.mat-mdc-table .mdc-data-table__header-cell {
+  color: var(--app-table-header-fg) !important;
+  border-bottom-color: var(--app-border) !important;
+}
+
+.mat-mdc-table .mat-mdc-row,
+.mat-mdc-table .mdc-data-table__row,
+.mat-mdc-table .mat-mdc-cell,
+.mat-mdc-table .mdc-data-table__cell {
+  color: var(--app-text-primary);
+  border-bottom-color: var(--app-border) !important;
 }

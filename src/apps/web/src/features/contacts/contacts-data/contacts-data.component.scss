@@ -7,10 +7,17 @@ mat-card-header {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  border-bottom: 1px solid var(--app-border);
+
+  mat-card-title {
+    color: var(--app-text-primary);
+  }
 }
 
 .header-actions {
   margin-left: 16px;
+  display: flex;
+  gap: 8px;
 }
 
 .filters-accordion {
@@ -30,6 +37,28 @@ mat-card-header {
   table {
     width: 100%;
   }
+
+  .mat-mdc-header-row,
+  .mdc-data-table__header-row {
+    background-color: var(--app-table-header-bg) !important;
+  }
+
+  th,
+  .mat-mdc-header-cell {
+    background-color: var(--app-table-header-bg) !important;
+    color: var(--app-table-header-fg) !important;
+    font-weight: 600;
+  }
+
+  td,
+  .mat-mdc-cell {
+    color: var(--app-text-primary);
+    border-color: var(--app-border);
+  }
+
+  tr.mat-mdc-row:hover td {
+    background-color: var(--app-row-hover);
+  }
 }
 
 .loading-container {
@@ -39,7 +68,7 @@ mat-card-header {
     justify-content: center;
     padding: 48px;
     gap: 16px;
-    color: rgba(0,0,0,0.54);
+    color: var(--app-text-secondary);
 }
 
 .no-data {
@@ -47,7 +76,7 @@ mat-card-header {
     flex-direction: column;
     align-items: center;
     padding: 48px;
-    color: rgba(0,0,0,0.54);
+    color: var(--app-text-secondary);
     
     mat-icon {
         font-size: 48px;

@@ -1,13 +1,15 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '@shared/material';
 import { PaginationComponent } from '@shared/components';
-import { AssetService, ToastService } from '@core/services';
+import { AssetService, ExportFormat, ExportScope, ToastService } from '@core/services';
 import { Asset, AssetStatus, ODataFilter, FilterOperator } from '@libs/shared';
-import { MatDialog } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { AssetFormComponent } from '../asset-form/asset-form.component';
+import { Subject, EMPTY } from 'rxjs';
+import { catchError, debounceTime, exhaustMap, finalize, takeUntil, tap } from 'rxjs/operators';
 
 interface FilterState {
   name: string;
@@ -17,6 +19,11 @@ interface FilterState {
   priceFrom: number | null;
   priceTo: number | null;
   warrantyStatus: string;
+}
+
+interface ExportRequest {
+  format: ExportFormat;
+  scope: ExportScope;
 }
 
 @Component({
@@ -33,14 +40,17 @@ interface FilterState {
   styleUrl: './assets-data.component.scss',
   changeDetection: ChangeDetectionStrategy.Default,
 })
-export class AssetsDataComponent implements OnInit {
+export class AssetsDataComponent implements OnInit, OnDestroy {
   assets: Asset[] = [];
   total: number = 0;
   page: number = 1;
   pageSize: number = 10;
   pageSizeOptions: number[] = [5, 10, 25, 50];
   loading: boolean = false;
+  exportInProgress: boolean = false;
   filtersExpanded: boolean = false;
+  private readonly exportRequests$ = new Subject<ExportRequest>();
+  private readonly destroy$ = new Subject<void>();
 
   displayedColumns: string[] = [
     'name',
@@ -73,7 +83,13 @@ export class AssetsDataComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.setupExportStream();
     this.loadAssets();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadAssets(): void {
@@ -195,6 +211,10 @@ export class AssetsDataComponent implements OnInit {
     this.loadAssets();
   }
 
+  requestExport(format: ExportFormat, scope: ExportScope): void {
+    this.exportRequests$.next({ format, scope });
+  }
+
   getStatusColor(status: AssetStatus): string {
     const colors: Record<AssetStatus, string> = {
       [AssetStatus.AVAILABLE]: '#4caf50',
@@ -222,6 +242,10 @@ export class AssetsDataComponent implements OnInit {
 
   openCreateDialog(): void {
     this.router.navigate(['/assets/new']);
+  }
+
+  openImportPage(): void {
+    this.router.navigate(['/assets/import']);
   }
 
   openEditDialog(asset: Asset): void {
@@ -269,6 +293,75 @@ export class AssetsDataComponent implements OnInit {
       }
     });
   }
+
+  private setupExportStream(): void {
+    this.exportRequests$
+      .pipe(
+        debounceTime(350),
+        exhaustMap((request) => {
+          this.exportInProgress = true;
+          this.cdr.detectChanges();
+
+          return this.assetService
+            .exportData(
+              request.format,
+              request.scope,
+              this.buildODataFilters(),
+              { page: this.page, pageSize: this.pageSize },
+            )
+            .pipe(
+              tap((response) => this.downloadFile(response, request.format)),
+              tap(() => this.toastService.success('Exportación generada correctamente')),
+              catchError((error) => {
+                console.error('Error exporting assets:', error);
+                this.toastService.error('No se pudo generar la exportación de assets');
+                return EMPTY;
+              }),
+              finalize(() => {
+                this.exportInProgress = false;
+                this.cdr.detectChanges();
+              }),
+            );
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+  }
+
+  private downloadFile(response: HttpResponse<Blob>, format: ExportFormat): void {
+    const blob = response.body;
+    if (!blob) {
+      throw new Error('Export response did not include a file');
+    }
+
+    const fileName = this.extractFileName(response, format, 'assets');
+    const objectUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = objectUrl;
+    anchor.download = fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    URL.revokeObjectURL(objectUrl);
+  }
+
+  private extractFileName(
+    response: HttpResponse<Blob>,
+    format: ExportFormat,
+    fallbackPrefix: string,
+  ): string {
+    const contentDisposition = response.headers.get('content-disposition') || response.headers.get('Content-Disposition');
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename\*?=(?:UTF-8''|"?)([^";]+)/i);
+      if (match && match[1]) {
+        return decodeURIComponent(match[1].replace(/"/g, ''));
+      }
+    }
+
+    const extension = format === 'pdf' ? 'pdf' : 'xlsx';
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    return `${fallbackPrefix}-${dateStamp}.${extension}`;
+  }
 }
 
 // Confirm Dialog Component
@@ -290,6 +383,3 @@ export class AssetsDataComponent implements OnInit {
 export class ConfirmDialogComponent {
   constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
 }
-
-import { Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
