@@ -8,8 +8,11 @@ import {
   Body,
   Param,
   Query,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 import {
   AssetService,
   Asset,
@@ -17,13 +20,23 @@ import {
   UpdateAssetDto,
   UpdateStatusDto,
   parseFiltersFromQuery,
+  AssetStatus,
+  AssetStatusLabels,
 } from '@libs/backend-config';
 import { ApiGet, ApiPost, ApiPut, ApiPatch, ApiDelete } from '../decorators/api-crud.decorator';
+import { ApiExport } from '../decorators/api-export.decorator';
+import { EntityExportService } from '../modules/export/entity-export.service';
+import { BulkImportService } from '../modules/import/bulk-import.service';
+import { CommitBulkImportDto, ValidateBulkImportDto } from '../modules/import/dto/bulk-import.dto';
 
 @ApiTags('Assets')
 @Controller('assets')
 export class AssetsController {
-  constructor(private readonly assetService: AssetService) {}
+  constructor(
+    private readonly assetService: AssetService,
+    private readonly entityExportService: EntityExportService,
+    private readonly bulkImportService: BulkImportService,
+  ) {}
 
   @Get()
   @ApiGet({
@@ -42,6 +55,82 @@ export class AssetsController {
       page,
       pageSize,
     });
+  }
+
+  @Get('export')
+  @ApiExport({
+    summary: 'Export assets',
+    description: 'Exporta activos en Excel o PDF con columnas traducidas y enums con etiqueta.',
+  })
+  async export(
+    @Query() query: Record<string, any>,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<StreamableFile> {
+    const exportFile = await this.entityExportService.exportFromQuery({
+      entity: Asset,
+      source: this.assetService,
+      query,
+      fileNameFallback: 'assets',
+    });
+
+    response.setHeader('Content-Type', exportFile.mimeType);
+    response.setHeader('Content-Disposition', `attachment; filename="${exportFile.fileName}"`);
+    response.setHeader('Content-Length', exportFile.buffer.length.toString());
+    return new StreamableFile(exportFile.buffer);
+  }
+
+  @Post('import/validate')
+  @ApiOperation({
+    summary: 'Validate bulk import for assets',
+    description: 'Valida filas mapeadas para importación masiva de activos. No inserta datos.',
+  })
+  @ApiBody({ type: ValidateBulkImportDto })
+  @ApiOkResponse({ description: 'Resultado de validación por fila.' })
+  validateBulkImport(@Body() body: ValidateBulkImportDto) {
+    return this.bulkImportService.validateRows({
+      entityName: 'asset',
+      dtoClass: CreateAssetDto,
+      fields: [
+        { key: 'name', required: true, type: 'string' },
+        { key: 'description', type: 'string' },
+        { key: 'serialNumber', type: 'string' },
+        { key: 'status', type: 'enum', enumValues: Object.values(AssetStatus), enumAliases: this.getAssetStatusAliases() },
+        { key: 'category', type: 'string' },
+        { key: 'location', type: 'string' },
+        { key: 'purchaseDate', type: 'date' },
+        { key: 'purchasePrice', type: 'number' },
+        { key: 'warrantyExpiryDate', type: 'date' },
+        { key: 'metadata', type: 'json' },
+      ],
+      create: async (payload) => await this.assetService.create(payload),
+    }, body.rows);
+  }
+
+  @Post('import/commit')
+  @ApiOperation({
+    summary: 'Commit bulk import for assets',
+    description: 'Inserta filas validadas para importación masiva de activos.',
+  })
+  @ApiBody({ type: CommitBulkImportDto })
+  @ApiOkResponse({ description: 'Resumen de inserción masiva.' })
+  async commitBulkImport(@Body() body: CommitBulkImportDto) {
+    return await this.bulkImportService.commitRows({
+      entityName: 'asset',
+      dtoClass: CreateAssetDto,
+      fields: [
+        { key: 'name', required: true, type: 'string' },
+        { key: 'description', type: 'string' },
+        { key: 'serialNumber', type: 'string' },
+        { key: 'status', type: 'enum', enumValues: Object.values(AssetStatus), enumAliases: this.getAssetStatusAliases() },
+        { key: 'category', type: 'string' },
+        { key: 'location', type: 'string' },
+        { key: 'purchaseDate', type: 'date' },
+        { key: 'purchasePrice', type: 'number' },
+        { key: 'warrantyExpiryDate', type: 'date' },
+        { key: 'metadata', type: 'json' },
+      ],
+      create: async (payload) => await this.assetService.create(payload),
+    }, body.rows);
   }
 
   @Get(':id')
@@ -108,5 +197,12 @@ export class AssetsController {
   })
   async remove(@Param('id') id: string): Promise<void> {
     return await this.assetService.remove(id);
+  }
+
+  private getAssetStatusAliases(): Record<string, string> {
+    return Object.entries(AssetStatusLabels).reduce<Record<string, string>>((aliases, [status, label]) => {
+      aliases[label.toLowerCase()] = status;
+      return aliases;
+    }, {});
   }
 }

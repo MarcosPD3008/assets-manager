@@ -14,6 +14,8 @@ import { CalendarController } from '../controllers/calendar.controller';
 import { ReminderRulesController } from '../controllers/reminder-rules.controller';
 import { NotificationDeliveriesController } from '../controllers/notification-deliveries.controller';
 import { NotificationsModule } from '../modules/notifications/notifications.module';
+import { EntityExportService } from '../modules/export/entity-export.service';
+import { BulkImportService } from '../modules/import/bulk-import.service';
 
 @Module({
   imports: [
@@ -34,6 +36,6 @@ import { NotificationsModule } from '../modules/notifications/notifications.modu
     ReminderRulesController,
     NotificationDeliveriesController,
   ],
-  providers: [AppService],
+  providers: [AppService, EntityExportService, BulkImportService],
 })
 export class AppModule {}

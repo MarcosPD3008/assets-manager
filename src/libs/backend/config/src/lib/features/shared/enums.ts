@@ -5,6 +5,13 @@ export enum AssetStatus {
   RETIRED = 'RETIRED',
 }
 
+export const AssetStatusLabels: Record<AssetStatus, string> = {
+  [AssetStatus.AVAILABLE]: 'Disponible',
+  [AssetStatus.ASSIGNED]: 'Asignado',
+  [AssetStatus.MAINTENANCE]: 'Mantenimiento',
+  [AssetStatus.RETIRED]: 'Retirado',
+};
+
 export enum AssignmentStatus {
   ACTIVE = 'ACTIVE',
   COMPLETED = 'COMPLETED',
