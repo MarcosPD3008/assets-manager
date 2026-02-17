@@ -1,0 +1,42 @@
+name: Deploy Self-Hosted Stack
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: selfhosted-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on:
+      - self-hosted
+    env:
+      COMPOSE_PROJECT_NAME: assets-manager
+      POSTGRES_VOLUME_NAME: assets_manager_postgres_data
+      POSTGRES_HOST_PORT: 35432
+      API_HOST_PORT: 47001
+      WEB_HOST_PORT: 62080
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Docker Versions
+        run: |
+          docker --version
+          docker compose version
+
+      - name: Deploy Containers
+        run: |
+          docker compose -f docker-compose.yml down --remove-orphans
+          docker compose -f docker-compose.yml up -d --build --remove-orphans
+
+      - name: Service Status
+        run: docker compose -f docker-compose.yml ps
+
+      - name: Last Logs
+        if: always()
+        run: docker compose -f docker-compose.yml logs --tail=120
