@@ -1,57 +1,328 @@
-# Nest Monorepo
+# Assets Manager
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+Aplicación fullstack para la **gestión integral de activos empresariales**: inventario, asignaciones a contactos, mantenimientos periódicos, recordatorios y notificaciones multicanal.
 
-Monorepo con **NestJS** (backend) y **Angular** (frontend) usando **Nx**.
+Construida como monorepo **Nx** con **NestJS** en el backend y **Angular** en el frontend.
 
-## 📁 Estructura del Proyecto
+---
+
+## Tabla de contenidos
+
+- [Características](#características)
+- [Stack tecnológico](#stack-tecnológico)
+- [Arquitectura](#arquitectura)
+- [Modelos de datos](#modelos-de-datos)
+- [API REST](#api-rest)
+- [Instalación y configuración](#instalación-y-configuración)
+- [Desarrollo](#desarrollo)
+- [Build y producción](#build-y-producción)
+- [Docker](#docker)
+- [Tests](#tests)
+
+---
+
+## Características
+
+### Gestión de activos
+- Alta, edición y baja de activos con campos de inventario completos: número de serie, categoría, ubicación, fecha de compra, precio, vencimiento de garantía y metadatos libres (JSON).
+- Estados: `AVAILABLE` · `ASSIGNED` · `MAINTENANCE` · `RETIRED`
+- Filtros OData por cualquier campo (`filter=status eq AVAILABLE and purchasePrice gt 1000`)
+- Listados paginados
+
+### Asignaciones
+- Asignación de activos a contactos con fechas de inicio, vencimiento y devolución
+- Soporte de asignaciones permanentes y temporales
+- Estados automáticos: `ACTIVE` · `COMPLETED` · `OVERDUE`
+
+### Contactos
+- Directorio de personas con email, teléfono, departamento, cargo y notas
+- Histórico de asignaciones por contacto
+
+### Mantenimientos
+- Programación de mantenimientos periódicos con frecuencia configurable (día / semana / mes / año)
+- Registro de ejecuciones con costo, proveedor y responsable
+- Cálculo automático de próxima fecha de servicio
+
+### Recordatorios y reglas
+- Recordatorios manuales o generados automáticamente por reglas (`ReminderRule`)
+- Vinculados a asignaciones o mantenimientos
+- Prioridad: `LOW` · `MEDIUM` · `HIGH`
+- Canales: `IN_APP` · `EMAIL` · `SMS` · `PUSH` · `WHATSAPP`
+- Estados: `PENDING` · `SENT` · `OVERDUE`
+
+### Sistema de notificaciones
+- Cola de entregas basada en **pg-boss** con reintentos automáticos
+- Seguimiento por entrega: `QUEUED` → `PROCESSING` → `SENT` / `FAILED` / `DEAD_LETTER`
+- Soporte de idempotencia y registro de errores por intento
+
+### Importación y exportación masiva
+- **Exportación** de activos y contactos a **Excel** o **PDF** con columnas traducidas
+- **Importación masiva** con flujo de dos pasos: validación previa (`/import/validate`) y confirmación (`/import/commit`)
+- Soporte de aliases de enum en los archivos importados
+
+### Vista de calendario
+- Vista consolidada de asignaciones, mantenimientos y recordatorios del período seleccionado
+
+### Dashboard
+- Pantalla de inicio con resumen del estado del sistema
+
+---
+
+## Stack tecnológico
+
+| Capa | Tecnología | Versión |
+|------|-----------|---------|
+| Backend | NestJS | ^11 |
+| ORM | TypeORM | ^0.3 |
+| Base de datos | PostgreSQL | >= 14 |
+| Cola de tareas | pg-boss | ^12 |
+| Logs | pino + pino-pretty | ^10 |
+| Documentación API | Swagger / OpenAPI | @nestjs/swagger ^8 |
+| Frontend | Angular | ~21.1 |
+| UI | Angular Material | ^21.1 |
+| Exportación | exceljs + pdfkit | ^4 / ^0.17 |
+| Monorepo | Nx | 22 |
+| Lenguaje | TypeScript | ~5.9 |
+
+---
+
+## Arquitectura
 
 ```
-src/
-├── apps/
-│   ├── api/          # 🟢 Aplicación NestJS (Backend)
-│   ├── api-e2e/      # Tests E2E del API
-│   ├── web/          # 🔵 Aplicación Angular (Frontend)
-│   └── web-e2e/      # Tests E2E del Frontend
-├── e2e/
-│   ├── api/          # Tests E2E del API (Jest)
-│   └── web/          # Tests E2E del Frontend (Playwright)
-└── libs/
-    ├── backend/
-    │   └── config/   # ⚙️ Configuración backend (TypeORM, PostgreSQL)
-    └── shared/
-        └── models/   # 📦 Interfaces compartidas
+assets-manager/
+├── src/
+│   ├── apps/
+│   │   ├── api/                        # Backend NestJS
+│   │   │   └── src/
+│   │   │       ├── app/                # AppModule raíz
+│   │   │       ├── controllers/        # Controladores REST
+│   │   │       │   ├── assets.controller.ts
+│   │   │       │   ├── contacts.controller.ts
+│   │   │       │   ├── assignments.controller.ts
+│   │   │       │   ├── maintenances.controller.ts
+│   │   │       │   ├── reminders.controller.ts
+│   │   │       │   ├── reminder-rules.controller.ts
+│   │   │       │   ├── calendar.controller.ts
+│   │   │       │   ├── notification-deliveries.controller.ts
+│   │   │       │   └── users.controller.ts
+│   │   │       ├── modules/
+│   │   │       │   ├── export/         # Exportación Excel / PDF
+│   │   │       │   ├── import/         # Importación masiva
+│   │   │       │   └── notifications/  # Cola pg-boss
+│   │   │       └── decorators/         # Decoradores Swagger CRUD
+│   │   └── web/                        # Frontend Angular
+│   │       └── src/
+│   │           ├── app/                # Rutas y configuración
+│   │           ├── features/           # Páginas lazy-loaded
+│   │           │   ├── dashboard/
+│   │           │   ├── assets/
+│   │           │   ├── contacts/
+│   │           │   ├── assignments/
+│   │           │   ├── maintenances/
+│   │           │   ├── reminders/
+│   │           │   ├── calendar/
+│   │           │   └── imports/        # Importación masiva UI
+│   │           ├── core/               # Servicios y modelos globales
+│   │           └── shared/             # Componentes, utils y validadores
+│   └── libs/
+│       ├── backend/
+│       │   └── config/                 # Entidades TypeORM, servicios y DTOs
+│       ├── frontend/
+│       │   └── api-client/             # Cliente HTTP tipado para el frontend
+│       └── shared/                     # Interfaces y enums compartidos (frontend + backend)
 ```
 
-## 🚀 Comandos principales
+---
 
-### Desarrollo
+## Modelos de datos
+
+```
+Asset ──────────────────────────────────────────────────
+  id · name · serialNumber · category · location
+  status: AVAILABLE | ASSIGNED | MAINTENANCE | RETIRED
+  purchaseDate · purchasePrice · warrantyExpiryDate
+  metadata (JSON) · description
+  → assignments[] · maintenances[]
+
+Contact ─────────────────────────────────────────────────
+  id · name · email · phoneNumber
+  department · position · notes · metadata (JSON)
+  → assignments[]
+
+Assignment ──────────────────────────────────────────────
+  id · assetId → Asset · assigneeId → Contact
+  startDate · dueDate · returnDate · isPermanent
+  status: ACTIVE | COMPLETED | OVERDUE
+  assignedBy · notes
+  → reminders[]
+
+Maintenance ─────────────────────────────────────────────
+  id · assetId → Asset · description
+  frequencyAmount · unit: DAY | WEEK | MONTH | YEAR
+  lastServiceDate · nextServiceDate
+  cost · serviceProvider · notes
+  → executions[] · reminders[]
+
+Reminder ────────────────────────────────────────────────
+  id · message · scheduledDate
+  status: PENDING | SENT | OVERDUE
+  type: ASSIGNMENT | MAINTENANCE
+  sourceType: MANUAL | RULE
+  priority: LOW | MEDIUM | HIGH
+  channel: IN_APP | EMAIL | SMS | PUSH | WHATSAPP
+  → assignment? · maintenance? · reminderRule?
+
+ReminderRule ────────────────────────────────────────────
+  targetEntityType: ASSIGNMENT | MAINTENANCE
+  offsetValue · offsetUnit: DAY | WEEK | MONTH
+  priority · channel · active · messageTemplate
+
+ReminderDelivery ────────────────────────────────────────
+  status: QUEUED | PROCESSING | SENT | FAILED | DEAD_LETTER
+  attempts · maxAttempts · jobId · idempotencyKey
+  queuedAt · processedAt · sentAt · lastError
+```
+
+---
+
+## API REST
+
+La documentación interactiva (Swagger UI) está disponible en:
+
+```
+http://localhost:3000/api/docs
+```
+
+### Endpoints principales
+
+| Módulo | Base URL | Operaciones |
+|--------|----------|-------------|
+| Assets | `/api/assets` | CRUD · export · import/validate · import/commit |
+| Contacts | `/api/contacts` | CRUD · export · import/validate · import/commit |
+| Assignments | `/api/assignments` | CRUD |
+| Maintenances | `/api/maintenances` | CRUD · executions |
+| Reminders | `/api/reminders` | CRUD |
+| Reminder Rules | `/api/reminder-rules` | CRUD |
+| Notification Deliveries | `/api/notification-deliveries` | GET · retry |
+| Calendar | `/api/calendar` | GET (rango de fechas) |
+| Users | `/api/users` | CRUD |
+
+### Paginación y filtros
+
+Todos los endpoints de listado soportan:
+
+```
+GET /api/assets?page=1&pageSize=20&filter=status eq AVAILABLE and purchasePrice gt 500
+```
+
+### Exportación
+
+```
+GET /api/assets/export?format=excel
+GET /api/assets/export?format=pdf
+```
+
+### Importación masiva
+
+```
+# 1. Validar sin insertar
+POST /api/assets/import/validate
+{ "rows": [{ "name": "Laptop Dell", "status": "Disponible", ... }] }
+
+# 2. Confirmar inserción
+POST /api/assets/import/commit
+{ "rows": [...] }
+```
+
+---
+
+## Instalación y configuración
+
+### Requisitos previos
+
+- Node.js >= 20
+- PostgreSQL >= 14
+- npm
+
+### Instalación de dependencias
 
 ```sh
-# Iniciar API (NestJS) - http://localhost:3000
-npx nx serve api
-
-# Iniciar Web (Angular) - http://localhost:4200
-npx nx serve web
-
-# Iniciar ambos en paralelo
-npx nx run-many -t serve -p api web
+npm install
 ```
 
-### Build
+### Variables de entorno
+
+Copia `.env.example` a `.env`:
+
+```env
+# Base de datos
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=password
+DB_DATABASE=assets_manager
+
+# CORS (separar con comas para múltiples orígenes)
+CORS_ORIGIN=http://localhost:4200
+
+# Puerto del API (opcional, por defecto 3000)
+PORT=3000
+```
+
+---
+
+## Desarrollo
+
+```sh
+# Iniciar API (NestJS) — http://localhost:3000
+npm run start:api
+
+# Iniciar Web (Angular) — http://localhost:4200
+npm run start:web
+
+# Iniciar ambos en paralelo
+npm run start:all
+```
+
+---
+
+## Build y producción
 
 ```sh
 # Build del API
 npx nx build api
 
-# Build de la Web
+# Build del frontend
 npx nx build web
 
-# Build de todo
+# Build de todo el monorepo
 npx nx run-many -t build
+
+# Grafo de dependencias
+npx nx graph
 ```
 
-### Tests
+---
+
+## Docker
+
+```sh
+# Producción (todos los servicios)
+docker-compose up --build
+
+# Desarrollo con hot reload
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+```
+
+| Servicio | Puerto |
+|----------|--------|
+| PostgreSQL | 5432 |
+| API (NestJS) | 3000 |
+| Web (Angular) | 4200 / 80 |
+
+---
+
+## Tests
 
 ```sh
 # Tests unitarios
@@ -61,186 +332,7 @@ npx nx test web
 # Tests E2E
 npx nx e2e api-e2e
 npx nx e2e web-e2e
-```
 
-### Lint
-
-```sh
-npx nx lint api
-npx nx lint web
+# Lint
 npx nx run-many -t lint
 ```
-
-## 📦 Generar nuevas librerías
-
-```sh
-# Librería TypeScript compartida
-npx nx g @nx/js:library --name=my-lib --directory=src/libs/shared/my-lib
-
-# Librería Angular
-npx nx g @nx/angular:library --name=ui --directory=src/libs/ui
-
-# Librería NestJS
-npx nx g @nx/nest:library --name=data-access --directory=src/libs/api/data-access
-```
-
-## ⚙️ Librería Backend Config
-
-La librería `@nest-monorepo/backend-config` proporciona configuración completa de backend:
-
-- **TypeORM** con PostgreSQL
-- **Entidades base** con timestamps automáticos
-- **Servicios CRUD** genéricos y específicos
-- **DTOs** con validación
-- **Controladores** de ejemplo
-
-### Uso básico
-
-```typescript
-import { BackendConfigModule } from '@nest-monorepo/backend-config';
-
-@Module({
-  imports: [
-    BackendConfigModule.forRootAsync({
-      includeControllers: true, // APIs REST automáticas
-    }),
-  ],
-})
-export class AppModule {}
-```
-
-### Variables de entorno (.env)
-
-```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=password
-DB_DATABASE=nest_monorepo
-
-# CORS (lista separada por comas para múltiples orígenes)
-CORS_ORIGIN=http://localhost:4200
-```
-
-### Crear nuevas entidades
-
-```typescript
-import { Entity, Column } from 'typeorm';
-import { BaseEntityWithTimestamps } from '@nest-monorepo/backend-config';
-
-@Entity('products')
-export class Product extends BaseEntityWithTimestamps {
-  @Column()
-  name: string;
-
-  @Column('decimal', { precision: 10, scale: 2 })
-  price: number;
-}
-```
-
-## 🔧 Usar librerías compartidas
-
-Importa los modelos compartidos en tus aplicaciones:
-
-```typescript
-import { User, ApiResponse } from '@libs/shared';
-```
-
-## 📊 Visualizar el grafo de dependencias
-
-```sh
-npx nx graph
-```
-
----
-
-[Learn more about Nx](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
-```
-
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
-
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
-
-# Generate a library
-npx nx g @nx/react:lib some-lib
-```
-
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
-
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
-```
-
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## 🐳 Docker
-
-El proyecto incluye configuración completa de Docker con PostgreSQL.
-
-### Producción (todos los servicios)
-```bash
-docker-compose up --build
-```
-
-### Desarrollo (con hot reload)
-```bash
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
-```
-
-### Servicios incluidos
-- **PostgreSQL**: Base de datos (puerto 5432)
-- **API (NestJS)**: Backend (puerto 3000)
-- **Web (Angular)**: Frontend (puerto 80/4200)
-
-### Variables de entorno
-Copia `.env.example` a `.env` y configura las variables de base de datos.
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
