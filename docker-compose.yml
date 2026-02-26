@@ -1,8 +1,9 @@
 # ============================================
-# Docker Compose - Nest Monorepo
+# Docker Compose - Assets Manager (Production Ready)
 # ============================================
-# Ejecutar: docker-compose up --build
-# Desarrollo: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+# Local:   docker compose up --build
+# Deploy:  Dokploy utilizará este archivo automáticamente.
+# ============================================
 
 services:
   # ----------------------------------------
@@ -10,12 +11,12 @@ services:
   # ----------------------------------------
   postgres:
     image: postgres:15-alpine
-    container_name: nest-postgres
+    container_name: assets-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: nest_monorepo
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${DB_DATABASE:-nest_monorepo}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
     ports:
       - "${POSTGRES_HOST_PORT:-5433}:5432"
     volumes:
@@ -23,7 +24,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d nest_monorepo"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-nest_monorepo}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -35,27 +36,21 @@ services:
     build:
       context: .
       dockerfile: src/apps/api/Dockerfile
-    container_name: nest-api
+    container_name: assets-api
     restart: unless-stopped
-    ports:
-      - "${API_HOST_PORT:-3000}:3000"
     environment:
-      - NODE_ENV=production
-      - PORT=3000
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${PORT:-3000}
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=password
-      - DB_DATABASE=nest_monorepo
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - DB_DATABASE=${DB_DATABASE:-nest_monorepo}
       - NOTIFICATION_QUEUE_DRIVER=pgboss
       - NOTIFICATION_CRON_ENABLED=true
-      - NOTIFICATION_CRON_EXPRESSION=*/5 * * * *
-      - NOTIFICATION_WORKER_ENABLED=true
-      - NOTIFICATION_MAX_ATTEMPTS=5
-      - NOTIFICATION_RETRY_BACKOFF=true
-      - NOTIFICATION_DLQ_NAME=notifications.dead-letter
-      - NOTIFICATION_ACTIVE_CHANNELS=IN_APP
       - APP_TIMEZONE=UTC
+    ports:
+      - "${API_HOST_PORT:-3000}:3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -75,10 +70,10 @@ services:
     build:
       context: .
       dockerfile: src/apps/web/Dockerfile
-    container_name: nest-web
+    container_name: assets-web
     restart: unless-stopped
     ports:
-      - "${WEB_HOST_PORT:-80}:80"
+      - "${WEB_HOST_PORT:-8080}:80"
     depends_on:
       - api
     networks:
@@ -86,9 +81,8 @@ services:
 
 volumes:
   postgres_data:
-    name: ${POSTGRES_VOLUME_NAME:-assets_manager_postgres_data}
+    name: ${POSTGRES_VOLUME_NAME:-assets_manager_data}
 
 networks:
   app-network:
     driver: bridge
-
