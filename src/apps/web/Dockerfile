@@ -16,6 +16,9 @@ RUN npm install --legacy-peer-deps
 # Copiar el código fuente
 COPY . .
 
+# Aumentar el heap de Node.js para evitar OOM en builds de Angular con Nx
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 # Build de la aplicación Angular
 RUN npx nx build web --configuration=production
 
@@ -26,7 +29,7 @@ FROM nginx:alpine AS production
 COPY src/apps/web/nginx.conf /etc/nginx/nginx.conf
 
 # Copiar los archivos build de Angular
-COPY --from=builder /app/dist/src/apps/web/browser /usr/share/nginx/html
+COPY --from=builder /app/dist/src/apps/web /usr/share/nginx/html
 
 # Exponer puerto 80
 EXPOSE 80

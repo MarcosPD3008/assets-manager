@@ -190,7 +190,7 @@ ReminderDelivery ─────────────────────
 La documentación interactiva (Swagger UI) está disponible en:
 
 ```
-http://localhost:3000/api/docs
+http://localhost:3100/api/docs
 ```
 
 ### Endpoints principales
@@ -274,10 +274,10 @@ PORT=3000
 ## Desarrollo
 
 ```sh
-# Iniciar API (NestJS) — http://localhost:3000
+# Iniciar API (NestJS) — http://localhost:3100
 npm run start:api
 
-# Iniciar Web (Angular) — http://localhost:4200
+# Iniciar Web (Angular) — http://localhost:8090
 npm run start:web
 
 # Iniciar ambos en paralelo
@@ -314,11 +314,11 @@ docker-compose up --build
 docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
 ```
 
-| Servicio | Puerto |
+| Servicio | Puerto (host) |
 |----------|--------|
-| PostgreSQL | 5432 |
-| API (NestJS) | 3000 |
-| Web (Angular) | 4200 / 80 |
+| PostgreSQL | 54321 |
+| API (NestJS) | 3100 |
+| Web (Angular) | 8090 |
 
 ---
 

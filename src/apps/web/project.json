@@ -11,6 +11,7 @@
       "outputs": [
         "{options.outputPath}"
       ],
+      "dependsOn": [],
       "options": {
         "outputPath": "dist/src/apps/web",
         "index": "src/apps/web/src/index.html",

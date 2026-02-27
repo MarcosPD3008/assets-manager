@@ -16,6 +16,9 @@ RUN npm install --legacy-peer-deps
 # Copiar el código fuente
 COPY . .
 
+# Aumentar el heap de Node.js para evitar OOM en builds con Nx
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 # Build de la aplicación API
 RUN npx nx build api --configuration=production
 
@@ -38,9 +41,9 @@ USER nestjs
 
 # Variables de entorno
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=3100
 
-EXPOSE 3000
+EXPOSE 3100
 
 # Comando de inicio
 CMD ["node", "dist/main.js"]
