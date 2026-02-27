@@ -13,10 +13,7 @@ services:
     image: postgres:15-alpine
     container_name: assets-postgres
     restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${DB_DATABASE:-nest_monorepo}
-      POSTGRES_USER: ${DB_USERNAME:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+    env_file: .env
     ports:
       - "${POSTGRES_HOST_PORT:-54321}:5432"
     volumes:
@@ -24,7 +21,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-nest_monorepo}"]
+      test: ["CMD-SHELL", "pg_isready -U $${DB_USERNAME} -d $${DB_DATABASE}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -38,17 +35,11 @@ services:
       dockerfile: src/apps/api/Dockerfile
     container_name: assets-api
     restart: unless-stopped
+    env_file: .env
     environment:
-      - NODE_ENV=${NODE_ENV:-production}
-      - PORT=${PORT:-3100}
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USERNAME=${DB_USERNAME:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-password}
-      - DB_DATABASE=${DB_DATABASE:-nest_monorepo}
-      - NOTIFICATION_QUEUE_DRIVER=pgboss
-      - NOTIFICATION_CRON_ENABLED=true
-      - APP_TIMEZONE=UTC
+      # Dentro de Docker el host de la BD es el nombre del servicio
+      DB_HOST: postgres
+      DB_PORT: 5432
     ports:
       - "${API_HOST_PORT:-3100}:3100"
     depends_on:
