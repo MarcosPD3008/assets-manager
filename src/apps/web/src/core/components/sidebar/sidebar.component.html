@@ -1,16 +1,39 @@
-<mat-nav-list>
-  <div class="nav-header">
-    <h3>Menú</h3>
+<div class="sidebar-root">
+  <!-- Zone 1: Brand -->
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <mat-icon>inventory_2</mat-icon>
+    </div>
+    <span class="brand-name">Assets Manager</span>
   </div>
-  <a
-    mat-list-item
-    *ngFor="let item of menuItems"
-    [routerLink]="item.route"
-    routerLinkActive="active"
-    [routerLinkActiveOptions]="{ exact: false }">
-    <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-    <span matListItemTitle>{{ item.label }}</span>
-    <span matListItemMeta *ngIf="item.badge" class="badge">{{ item.badge }}</span>
-  </a>
-</mat-nav-list>
 
+  <!-- Zone 2: Navigation -->
+  <nav class="sidebar-nav">
+    <p class="nav-section-label">MENÚ</p>
+    @for (item of menuItems; track item.route) {
+      <a
+        class="nav-item"
+        [routerLink]="item.route"
+        routerLinkActive="nav-item--active"
+        [routerLinkActiveOptions]="{ exact: false }">
+        <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+        <span class="nav-label">{{ item.label }}</span>
+        @if (item.badge) {
+          <span class="nav-badge">{{ item.badge }}</span>
+        }
+      </a>
+    }
+  </nav>
+
+  <!-- Zone 3: User (pinned bottom) -->
+  <div class="sidebar-user">
+    <div class="user-avatar">AM</div>
+    <div class="user-info">
+      <span class="user-name">Assets Manager</span>
+      <span class="user-role">Administrador</span>
+    </div>
+    <button mat-icon-button class="settings-btn" matTooltip="Configuración">
+      <mat-icon>settings</mat-icon>
+    </button>
+  </div>
+</div>

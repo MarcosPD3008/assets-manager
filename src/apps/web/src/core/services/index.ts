@@ -1,4 +1,5 @@
 export * from './asset.service';
+export * from './dashboard.service';
 export * from './assignment.service';
 export * from './base.service';
 export * from './calendar.service';

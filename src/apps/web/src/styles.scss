@@ -31,6 +31,9 @@ $web-dark-theme: mat.m2-define-dark-theme((
 /* ngx-toastr styles */
 @import 'ngx-toastr/toastr';
 
+/* Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 /* Global styles */
 * {
   box-sizing: border-box;
@@ -38,30 +41,58 @@ $web-dark-theme: mat.m2-define-dark-theme((
 
 :root,
 body.light-theme {
-  --app-text-primary: #1f2937;
-  --app-text-secondary: #6b7280;
-  --app-surface: #ffffff;
+  /* Design tokens */
+  --color-surface: #f8f9ff;
+  --color-surface-card: #ffffff;
+  --color-surface-low: #eef4ff;
+  --color-on-surface: #0d1c2d;
+  --color-on-surface-variant: #464554;
+  --color-primary: #4648d4;
+  --color-primary-gradient: linear-gradient(135deg, #4648d4 0%, #6063ee 100%);
+  --color-primary-fixed: #e1e0ff;
+  --color-outline-variant: rgba(199, 196, 215, 0.15);
+  --color-outline: #767586;
+  --color-sidebar-bg: #0f172a;
+  --color-sidebar-text: #94a3b8;
+  --color-sidebar-icon: #64748b;
+  --color-sidebar-active-bg: rgba(99, 102, 241, 0.12);
+  --color-sidebar-active-text: #ffffff;
+  --color-sidebar-active-icon: #818cf8;
+  --color-sidebar-hover-bg: rgba(255, 255, 255, 0.06);
+  --color-kpi-indigo: #6366f1;
+  --color-kpi-amber: #f59e0b;
+  --color-kpi-red: #ef4444;
+  --color-kpi-emerald: #10b981;
+  --shadow-card: 0 4px 24px rgba(13, 28, 45, 0.05);
+  --shadow-card-hover: 0 8px 32px rgba(13, 28, 45, 0.10);
+  --radius-card: 12px;
+  --radius-icon-box: 8px;
+
+  /* Legacy tokens kept for calendar and other components */
+  --app-text-primary: #0d1c2d;
+  --app-text-secondary: #464554;
+  --app-surface: #f8f9ff;
   --app-surface-muted: #f4f6fb;
   --app-surface-subtle: #eef4ff;
-  --app-border: #d8dee8;
-  --app-table-header-bg: #f3f5f8;
-  --app-table-header-fg: #1f2937;
-  --app-row-hover: #f8fafc;
+  --app-border: rgba(199, 196, 215, 0.4);
+  --app-table-header-bg: #f1f5f9;
+  --app-table-header-fg: #464554;
+  --app-row-hover: #eef4ff;
   --app-calendar-event-bg: #f8fbff;
   --app-calendar-outside-bg: #f1f3f6;
-  --app-link: #3f51b5;
+  --app-link: #6366f1;
 }
 
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Inter', 'Roboto', sans-serif;
 }
 
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: 'Inter', 'Roboto', "Helvetica Neue", sans-serif;
   @include mat.all-component-typographies($web-light-theme);
 }
 
@@ -96,21 +127,34 @@ mat-chip,
 // Dark theme class
 .dark-theme {
   @include mat.all-component-colors($web-dark-theme);
-  // Important: Set background and text color for the entire app in dark mode
-  background-color: #303030; 
+  background-color: #1e293b;
   color: rgba(255, 255, 255, 0.87);
+
+  /* Design tokens - dark */
+  --color-surface: #1e293b;
+  --color-surface-card: #263348;
+  --color-surface-low: #1a2640;
+  --color-on-surface: rgba(255, 255, 255, 0.92);
+  --color-on-surface-variant: rgba(255, 255, 255, 0.60);
+  --color-outline-variant: rgba(255, 255, 255, 0.08);
+  --color-outline: rgba(255, 255, 255, 0.3);
+  --color-primary-fixed: rgba(99, 102, 241, 0.2);
+  /* Sidebar stays dark navy regardless of theme */
+  --color-sidebar-bg: #0f172a;
+
+  /* Legacy tokens */
   --app-text-primary: rgba(255, 255, 255, 0.92);
-  --app-text-secondary: rgba(255, 255, 255, 0.72);
-  --app-surface: #3a3d45;
+  --app-text-secondary: rgba(255, 255, 255, 0.60);
+  --app-surface: #1e293b;
   --app-surface-muted: #2f3239;
   --app-surface-subtle: #263b56;
-  --app-border: rgba(255, 255, 255, 0.14);
-  --app-table-header-bg: #2c313a;
-  --app-table-header-fg: #f3f5fa;
-  --app-row-hover: rgba(255, 255, 255, 0.05);
+  --app-border: rgba(255, 255, 255, 0.12);
+  --app-table-header-bg: #1e2d42;
+  --app-table-header-fg: rgba(255, 255, 255, 0.70);
+  --app-row-hover: rgba(255, 255, 255, 0.04);
   --app-calendar-event-bg: #22364f;
   --app-calendar-outside-bg: #4b4f58;
-  --app-link: #9ebcff;
+  --app-link: #818cf8;
 }
 
 /* Shared readable colors in both themes */
@@ -146,4 +190,330 @@ mat-chip,
 .mat-mdc-table .mdc-data-table__cell {
   color: var(--app-text-primary);
   border-bottom-color: var(--app-border) !important;
+}
+
+// ==========================================
+// SHARED PAGE LAYOUT — used by all data pages
+// ==========================================
+
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  // Extra breathing room between filter bar and table
+  .filter-bar + .table-card {
+    margin-top: 8px;
+  }
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  &__left { flex: 1; min-width: 0; }
+
+  .page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-on-surface);
+    letter-spacing: -0.02em;
+    margin: 0 0 2px;
+  }
+
+  .page-subtitle {
+    font-size: 13px;
+    color: var(--color-on-surface-variant);
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+}
+
+// ==========================================
+// SHARED FILTER BAR — compact inline filters
+// ==========================================
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-surface-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 10px 16px;
+  flex-wrap: wrap;
+
+  // Compact height — Angular Material 21 MDC CSS custom properties
+  .mat-mdc-form-field {
+    margin-bottom: 0;
+
+    // These CSS vars are the correct way to compact MDC form fields in Angular Material 21
+    --mat-form-field-container-height: 40px;
+    --mat-form-field-container-vertical-padding: 8px;
+    // Remove subscript space (hint/error area below the field)
+    --mat-form-field-subscript-text-size: 0px;
+
+    // Ensure no extra bottom space from subscript wrapper
+    .mat-mdc-form-field-subscript-wrapper {
+      height: 0;
+      overflow: hidden;
+    }
+
+    &.filter-field--search { flex: 1; min-width: 180px; }
+    &.filter-field--sm { width: 140px; }
+    &.filter-field--md { width: 170px; }
+  }
+
+  .filter-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  // Inline checkbox in filter bar
+  .mat-mdc-checkbox {
+    flex-shrink: 0;
+    .mdc-form-field { color: var(--color-on-surface-variant); font-size: 13px; }
+  }
+}
+
+// ==========================================
+// SHARED TABLE CARD & DATA TABLE
+// ==========================================
+
+.table-card {
+  background: var(--color-surface-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  min-width: 700px;
+
+  // Header row
+  .mat-mdc-header-row,
+  .mdc-data-table__header-row {
+    background-color: #f1f5f9 !important;
+  }
+
+  th.mat-mdc-header-cell,
+  .mdc-data-table__header-cell {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: #f1f5f9 !important;
+    color: var(--color-on-surface-variant) !important;
+    border-bottom: none !important;
+    padding: 12px 16px !important;
+  }
+
+  td.mat-mdc-cell,
+  .mdc-data-table__cell {
+    color: var(--color-on-surface) !important;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(199, 196, 215, 0.25) !important;
+    padding: 13px 16px !important;
+  }
+
+  tr.mat-mdc-row:hover td {
+    background-color: var(--color-surface-low);
+  }
+
+  // Pill-shaped status chips
+  mat-chip,
+  .mat-mdc-chip {
+    border-radius: 9999px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    min-height: 22px !important;
+    padding: 0 10px !important;
+  }
+
+  .expired { color: var(--color-kpi-red); font-weight: 500; }
+  .menu-chip { pointer-events: none; }
+
+  // No data state
+  .no-data {
+    text-align: center;
+    padding: 56px 48px;
+    color: var(--color-on-surface-variant);
+
+    mat-icon {
+      font-size: 44px;
+      width: 44px;
+      height: 44px;
+      opacity: 0.3;
+      display: block;
+      margin: 0 auto 12px;
+    }
+
+    p { margin: 0; font-size: 14px; }
+  }
+}
+
+// Shared loading state
+.table-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px;
+  gap: 16px;
+
+  p { margin: 0; color: var(--color-on-surface-variant); font-size: 14px; }
+}
+
+// Dark theme overrides for table
+.dark-theme {
+  .data-table {
+    // Header: more visible separation from rows (uses a slightly lighter tint)
+    .mat-mdc-header-row,
+    .mdc-data-table__header-row {
+      background-color: rgba(255, 255, 255, 0.07) !important;
+    }
+
+    th.mat-mdc-header-cell,
+    .mdc-data-table__header-cell {
+      background-color: rgba(255, 255, 255, 0.07) !important;
+      color: rgba(255, 255, 255, 0.60) !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.10) !important;
+    }
+
+    td.mat-mdc-cell,
+    .mdc-data-table__cell {
+      border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+    }
+
+    tr.mat-mdc-row:hover td {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  .filter-bar,
+  .table-card {
+    background: var(--color-surface-card);
+  }
+
+  // Pagination select in dark theme
+  .page-size-select {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+}
+
+// Delete action row color (used in all tables)
+.delete-action {
+  color: var(--color-kpi-red) !important;
+  mat-icon { color: var(--color-kpi-red) !important; }
+}
+
+// Active badge (used in assignments)
+.active-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--color-kpi-emerald);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+// ==========================================
+// SHARED FORM CARD — dialogs & routed forms
+// ==========================================
+
+.form-page {
+  padding: 0;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+mat-dialog-container,
+.form-page {
+  mat-card {
+    background: var(--color-surface-card) !important;
+    border-radius: var(--radius-card) !important;
+    box-shadow: var(--shadow-card) !important;
+    overflow: hidden;
+
+    mat-card-header {
+      padding: 20px 24px 16px !important;
+      border-bottom: 1px solid rgba(199, 196, 215, 0.2);
+      margin-bottom: 0 !important;
+
+      mat-card-title {
+        font-size: 17px !important;
+        font-weight: 600 !important;
+        color: var(--color-on-surface) !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+    }
+
+    mat-card-content {
+      padding: 24px !important;
+    }
+
+    mat-card-actions {
+      padding: 14px 24px !important;
+      margin: 0 !important;
+      border-top: 1px solid rgba(199, 196, 215, 0.2);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+  }
+}
+
+// Form grid shared style
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 16px;
+
+  .full-width { grid-column: 1 / -1; }
+
+  mat-form-field { width: 100%; }
+
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+// Responsive shared
+@media (max-width: 960px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+
+    .mat-mdc-form-field.filter-field--search,
+    .mat-mdc-form-field.filter-field--sm,
+    .mat-mdc-form-field.filter-field--md {
+      width: 100%;
+    }
+
+    .filter-actions { justify-content: flex-end; }
+  }
 }

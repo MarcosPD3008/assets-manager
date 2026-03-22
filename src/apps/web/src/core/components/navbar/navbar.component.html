@@ -1,17 +1,21 @@
-<mat-toolbar color="primary">
+<mat-toolbar class="app-navbar">
   <button mat-icon-button (click)="toggleSidebar()" class="menu-button">
     <mat-icon>menu</mat-icon>
   </button>
-  <span class="title">{{ title }}</span>
+  <div class="navbar-divider"></div>
+  <span class="app-title">{{ title }}</span>
   <span class="spacer"></span>
 
-  <button mat-icon-button (click)="toggleTheme()" [matTooltip]="themeService.darkMode() ? 'Modo Claro' : 'Modo Oscuro'">
-    <mat-icon>{{ themeService.darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
-  </button>
+  <div class="navbar-actions">
+    <button mat-icon-button (click)="toggleTheme()" [matTooltip]="themeService.darkMode() ? 'Modo Claro' : 'Modo Oscuro'">
+      <mat-icon>{{ themeService.darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
 
-  <button mat-icon-button [matMenuTriggerFor]="userMenu">
-    <mat-icon>account_circle</mat-icon>
-  </button>
+    <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-avatar-btn" matTooltip="Cuenta">
+      <span class="user-initials">AM</span>
+    </button>
+  </div>
+
   <mat-menu #userMenu="matMenu">
     <button mat-menu-item>
       <mat-icon>person</mat-icon>

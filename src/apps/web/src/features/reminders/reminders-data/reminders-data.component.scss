@@ -1,57 +1,20 @@
-.reminders-container {
-  padding: 24px;
-}
+// All shared layout/table/filter styles come from global styles.scss
 
-.header-actions {
-  margin-left: auto;
-}
-
-.filters-accordion {
-  margin-bottom: 16px;
-}
-
-.filters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
-}
-
-.table-container {
-  overflow-x: auto;
-}
-
-.reminders-table {
-  width: 100%;
-}
-
+// Component-specific: reminder status text labels
 .status-sent {
-  color: #2e7d32;
+  color: var(--color-kpi-emerald);
   font-weight: 600;
+  font-size: 12px;
 }
 
 .status-pending {
-  color: #ef6c00;
+  color: var(--color-kpi-amber);
   font-weight: 600;
+  font-size: 12px;
 }
 
 .status-overdue {
-  color: #c62828;
+  color: var(--color-kpi-red);
   font-weight: 600;
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px;
-  gap: 12px;
-}
-
-.no-data {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 32px;
+  font-size: 12px;
 }

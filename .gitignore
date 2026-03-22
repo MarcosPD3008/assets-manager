@@ -16,6 +16,9 @@ node_modules
 *.launch
 .settings/
 *.sublime-workspace
+.cursor
+.agents
+.github
 
 # IDE - VSCode
 .vscode/*
@@ -51,3 +54,7 @@ Thumbs.db
 # Nx graph generated output
 static/
 dependency-graph.html
+
+.nx/polygraph
+.claude/worktrees
+.claude/settings.local.json

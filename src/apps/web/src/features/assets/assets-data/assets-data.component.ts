@@ -48,7 +48,6 @@ export class AssetsDataComponent implements OnInit, OnDestroy {
   pageSizeOptions: number[] = [5, 10, 25, 50];
   loading: boolean = false;
   exportInProgress: boolean = false;
-  filtersExpanded: boolean = false;
   private readonly exportRequests$ = new Subject<ExportRequest>();
   private readonly destroy$ = new Subject<void>();
 

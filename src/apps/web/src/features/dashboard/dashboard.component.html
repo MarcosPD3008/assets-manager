@@ -1,89 +1,133 @@
 <div class="dashboard-container">
-    <div class="welcome-section">
-        <h1>Inicio</h1>
-        <p>Bienvenido a Assets Manager. Gestiona tus activos, asignaciones, mantenimientos y recordatorios.</p>
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Inicio</h1>
+    <p class="page-subtitle">Bienvenido a Assets Manager</p>
+  </div>
+
+  <!-- KPI Stat Cards -->
+  <div class="kpi-row">
+    <div class="kpi-card kpi-card--indigo">
+      <div class="kpi-icon">
+        <mat-icon>inventory_2</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Activos Totales</span>
+        <span class="kpi-value">{{ activosTotales ?? '—' }}</span>
+        <span class="kpi-sub">Inventario registrado</span>
+      </div>
     </div>
 
-    <div class="summary-grid">
-        <mat-card>
-            <mat-card-title>Recordatorios pendientes</mat-card-title>
-            <mat-card-content>
-                <strong>{{ remindersPendientes }}</strong>
-            </mat-card-content>
-        </mat-card>
-        <mat-card>
-            <mat-card-title>Mantenimientos próximos (30 días)</mat-card-title>
-            <mat-card-content>
-                <strong>{{ mantenimientosProximos }}</strong>
-            </mat-card-content>
-        </mat-card>
+    <div class="kpi-card kpi-card--amber">
+      <div class="kpi-icon">
+        <mat-icon>notifications</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Recordatorios Pendientes</span>
+        <span class="kpi-value">{{ remindersPendientes ?? '—' }}</span>
+        <span class="kpi-sub kpi-sub--warning">Requieren atención</span>
+      </div>
     </div>
 
-    <div class="cards-grid">
-        <mat-card class="dashboard-card" routerLink="/assets">
-            <mat-card-header>
-                <mat-icon mat-card-avatar>inventory_2</mat-icon>
-                <mat-card-title>Activos</mat-card-title>
-                <mat-card-subtitle>Gestionar inventario</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <p>Ver, crear y editar activos de la empresa.</p>
-            </mat-card-content>
-        </mat-card>
-
-        <mat-card class="dashboard-card" routerLink="/assignments">
-            <mat-card-header>
-                <mat-icon mat-card-avatar>assignment_ind</mat-icon>
-                <mat-card-title>Asignaciones</mat-card-title>
-                <mat-card-subtitle>Préstamos de equipos</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <p>Gestionar quién tiene qué equipo asignado.</p>
-            </mat-card-content>
-        </mat-card>
-
-        <mat-card class="dashboard-card" routerLink="/contacts">
-            <mat-card-header>
-                <mat-icon mat-card-avatar>people</mat-icon>
-                <mat-card-title>Contactos</mat-card-title>
-                <mat-card-subtitle>Empleados y proveedores</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <p>Administrar la lista de contactos.</p>
-            </mat-card-content>
-        </mat-card>
-
-        <mat-card class="dashboard-card" routerLink="/maintenances">
-            <mat-card-header>
-                <mat-icon mat-card-avatar>build</mat-icon>
-                <mat-card-title>Mantenimientos</mat-card-title>
-                <mat-card-subtitle>Plan y ejecuciones</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <p>Registrar mantenimientos y controlar costos.</p>
-            </mat-card-content>
-        </mat-card>
-
-        <mat-card class="dashboard-card" routerLink="/reminders">
-            <mat-card-header>
-                <mat-icon mat-card-avatar>notifications</mat-icon>
-                <mat-card-title>Recordatorios</mat-card-title>
-                <mat-card-subtitle>Alertas pendientes</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <p>Ver recordatorios de devolución y mantenimiento.</p>
-            </mat-card-content>
-        </mat-card>
-
-        <mat-card class="dashboard-card" routerLink="/calendar">
-            <mat-card-header>
-                <mat-icon mat-card-avatar>calendar_month</mat-icon>
-                <mat-card-title>Calendario</mat-card-title>
-                <mat-card-subtitle>Vista mensual operativa</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <p>Consultar eventos de asignaciones, mantenimientos y recordatorios.</p>
-            </mat-card-content>
-        </mat-card>
+    <div class="kpi-card kpi-card--red">
+      <div class="kpi-icon">
+        <mat-icon>build</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Mantenimientos Próximos</span>
+        <span class="kpi-value">{{ mantenimientosProximos ?? '—' }}</span>
+        <span class="kpi-sub kpi-sub--danger">Próximos 30 días</span>
+      </div>
     </div>
+
+    <div class="kpi-card kpi-card--emerald">
+      <div class="kpi-icon">
+        <mat-icon>assignment_ind</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Asignaciones Activas</span>
+        <span class="kpi-value">{{ asignacionesActivas ?? '—' }}</span>
+        <span class="kpi-sub">Equipos en uso</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Access -->
+  <div class="section-header">
+    <h2 class="section-title">Acceso Rápido</h2>
+  </div>
+
+  <div class="quick-grid">
+    <a class="quick-card" routerLink="/assets">
+      <div class="quick-icon quick-icon--indigo">
+        <mat-icon>inventory_2</mat-icon>
+      </div>
+      <div class="quick-body">
+        <span class="quick-title">Activos</span>
+        <span class="quick-sub">Gestionar inventario</span>
+        <span class="quick-desc">Ver, crear y editar activos de la empresa.</span>
+      </div>
+      <mat-icon class="quick-arrow">chevron_right</mat-icon>
+    </a>
+
+    <a class="quick-card" routerLink="/assignments">
+      <div class="quick-icon quick-icon--violet">
+        <mat-icon>assignment_ind</mat-icon>
+      </div>
+      <div class="quick-body">
+        <span class="quick-title">Asignaciones</span>
+        <span class="quick-sub">Préstamos de equipos</span>
+        <span class="quick-desc">Gestionar quién tiene qué equipo asignado.</span>
+      </div>
+      <mat-icon class="quick-arrow">chevron_right</mat-icon>
+    </a>
+
+    <a class="quick-card" routerLink="/contacts">
+      <div class="quick-icon quick-icon--cyan">
+        <mat-icon>people</mat-icon>
+      </div>
+      <div class="quick-body">
+        <span class="quick-title">Contactos</span>
+        <span class="quick-sub">Empleados y proveedores</span>
+        <span class="quick-desc">Administrar la lista de contactos.</span>
+      </div>
+      <mat-icon class="quick-arrow">chevron_right</mat-icon>
+    </a>
+
+    <a class="quick-card" routerLink="/maintenances">
+      <div class="quick-icon quick-icon--orange">
+        <mat-icon>build</mat-icon>
+      </div>
+      <div class="quick-body">
+        <span class="quick-title">Mantenimientos</span>
+        <span class="quick-sub">Plan y ejecuciones</span>
+        <span class="quick-desc">Registrar mantenimientos y controlar costos.</span>
+      </div>
+      <mat-icon class="quick-arrow">chevron_right</mat-icon>
+    </a>
+
+    <a class="quick-card" routerLink="/reminders">
+      <div class="quick-icon quick-icon--red">
+        <mat-icon>notifications</mat-icon>
+      </div>
+      <div class="quick-body">
+        <span class="quick-title">Recordatorios</span>
+        <span class="quick-sub">Alertas pendientes</span>
+        <span class="quick-desc">Ver recordatorios de devolución y mantenimiento.</span>
+      </div>
+      <mat-icon class="quick-arrow">chevron_right</mat-icon>
+    </a>
+
+    <a class="quick-card" routerLink="/calendar">
+      <div class="quick-icon quick-icon--emerald">
+        <mat-icon>calendar_today</mat-icon>
+      </div>
+      <div class="quick-body">
+        <span class="quick-title">Calendario</span>
+        <span class="quick-sub">Vista mensual operativa</span>
+        <span class="quick-desc">Consultar eventos de asignaciones y recordatorios.</span>
+      </div>
+      <mat-icon class="quick-arrow">chevron_right</mat-icon>
+    </a>
+  </div>
 </div>

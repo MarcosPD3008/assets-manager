@@ -11,15 +11,18 @@
 }
 
 .sidenav {
-  width: 250px;
-  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+  width: 240px;
+  box-shadow: none;
+  background-color: var(--color-sidebar-bg) !important;
+  border-right: none !important;
 }
 
 .content {
-  padding: 16px;
+  background-color: var(--color-surface);
+  padding: 24px;
   min-height: calc(100vh - 64px);
-  
+
   @media (min-width: 768px) {
-    padding: 24px;
+    padding: 32px;
   }
 }

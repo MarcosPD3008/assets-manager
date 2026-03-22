@@ -1,60 +1,75 @@
-.maintenances-container {
-  padding: 24px;
-}
+// All shared layout/table/filter styles come from global styles.scss
 
-.header-actions {
-  margin-left: auto;
-}
-
-.filters-grid {
+// Component-specific: summary cards row above the table
+.summary-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
-  align-items: center;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  @media (max-width: 640px) { grid-template-columns: 1fr; }
 }
 
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
+.summary-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--color-surface-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  border-left: 4px solid transparent;
 
-  strong {
-    font-size: 1.4rem;
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  &--indigo {
+    border-left-color: var(--color-kpi-indigo);
+    mat-icon { color: var(--color-kpi-indigo); }
+  }
+  &--amber {
+    border-left-color: var(--color-kpi-amber);
+    mat-icon { color: var(--color-kpi-amber); }
   }
 }
 
-.cost-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 6px;
-}
-
-.table-container {
-  overflow: auto;
-  margin-top: 12px;
-}
-
-.maintenances-table {
-  width: 100%;
-}
-
-.no-data {
-  text-align: center;
-  padding: 24px;
-  opacity: 0.8;
-}
-
-.loading-container {
+.summary-body {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
+  gap: 4px;
+  flex: 1;
 
-.delete-action {
-  color: #c62828;
+  .summary-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-on-surface-variant);
+  }
+
+  .summary-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-on-surface);
+    letter-spacing: -0.02em;
+  }
+
+  .summary-cost-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--color-on-surface);
+
+    strong { color: var(--color-on-surface); font-weight: 600; }
+  }
+
+  .summary-empty {
+    font-size: 13px;
+    color: var(--color-on-surface-variant);
+  }
 }
